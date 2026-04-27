@@ -21,6 +21,8 @@ class ChampionshipResource extends Resource
 {
     use AssesmentAndChampionshipGrouping;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = Championship::class;
 
     protected static string|BackedEnum|null $navigationIcon = Phosphor::Trophy;

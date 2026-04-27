@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
+use Illuminate\Database\Eloquent\Builder; // 👈 Wajib ditambahin
 
 class PresenceResource extends Resource
 {
@@ -60,5 +61,20 @@ class PresenceResource extends Resource
             'view' => ViewPresence::route('/{record}'),
             'edit' => EditPresence::route('/{record}/edit'),
         ];
+    }
+
+    // 👇 MANTRA SAKTI FILTER TABEL PRESENSI 👇
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->hasRole('teacher')) {
+            // Karena tabel Presence kaga punya teacher_id, kita cek ke relasi Kelasnya
+            $query->whereHas('classroom', function ($q) {
+                $q->where('teacher_id', auth()->id());
+            });
+        }
+
+        return $query;
     }
 }

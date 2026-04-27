@@ -14,7 +14,7 @@ enum NavigationGrouping: string
         return match ($this) {
             self::ClassAndSubjectManagement => 'Manajemen Kelas & Mata Pelajaran',
             self::UserManagement => 'Manajemen Pengguna',
-            self::AssesmentAndChampionshipManagement => 'Manajemen Penilaian & Kejuaraan',
+            self::AssesmentAndChampionshipManagement => 'Manajemen Penilaian',
             self::ReportManagement => 'Manajemen Laporan',
         };
     }

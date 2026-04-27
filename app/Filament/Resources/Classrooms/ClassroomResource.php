@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
+use Illuminate\Database\Eloquent\Builder; // 👈 Wajib ditambahin
 
 class ClassroomResource extends Resource
 {
@@ -64,5 +65,17 @@ class ClassroomResource extends Resource
             'view' => ViewClassroom::route('/{record}'),
             'edit' => EditClassroom::route('/{record}/edit'),
         ];
+    }
+
+    // 👇 MANTRA SAKTI FILTER TABEL KELAS 👇
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->hasRole('teacher')) {
+            $query->where('teacher_id', auth()->id());
+        }
+
+        return $query;
     }
 }

@@ -21,9 +21,18 @@ class AssesmentForm
                             ->label('Kelas')
                             ->preload()
                             ->relationship('classroom', 'name', function ($query) {
+                                // 👇 Filter 1: Cuma ambil kelas dari Tahun Ajaran yang Aktif
                                 $query->whereHas('academicYear', function ($q) {
                                     $q->where('is_active', true);
                                 });
+
+                                // 👇 Filter 2: JURUS ANTI NGINTIP KELAS ORANG 👇
+                                /** @var \App\Models\User $user */
+                                $user = auth()->user();
+                                
+                                if ($user && $user->hasRole('teacher')) {
+                                    $query->where('teacher_id', $user->id);
+                                }
                             })
                             ->searchable()
                             ->required(),

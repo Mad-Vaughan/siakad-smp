@@ -30,6 +30,11 @@ class Presence extends Model
                 })->toArray()
             );
         });
+
+        // 👇 INI OBAT BIAR BISA DIHAPUS JON 👇
+        static::deleting(function ($presence) {
+            $presence->studentPresences()->delete();
+        });
     }
 
     public function classroom()

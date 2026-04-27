@@ -25,7 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class StudentsTable
-{
+{    
     public static function configure(Table $table): Table
     {
         return $table
@@ -36,9 +36,17 @@ class StudentsTable
                 TextColumn::make('nisn')
                     ->label('NISN')
                     ->searchable(),
-                TextColumn::make('classroom.name')
+                // 👇 JURUS PAMUNGKAS BUAT NAMPILIN KELAS 👇
+                TextColumn::make('kelas')
                     ->label('Kelas')
-                    ->sortable(),
+                    ->getStateUsing(function ($record) {
+                        // Ganti logic-nya jadi ngambil data kelas TERAKHIR (latest)
+                        $lastClass = \App\Models\StudentClassroom::where('student_id', $record->id)
+                            ->latest('id') // Ini bakal ngambil record paling bawah/terbaru
+                            ->first();
+                        return $lastClass ? $lastClass->classroom->name : '-';
+                    })
+                    ->sortable(false),
             ])
             ->filters([
                 //
@@ -270,35 +278,28 @@ class StudentsTable
                         ]);
                     }),
 
-                // 👇 INI DIA EXPORT EXCEL YANG BARU JON 👇
                 Action::make('export')
                     ->label('Export Data Excel')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->color('info')
                     ->action(function (): StreamedResponse {
-                        $students = Student::query()->with('classroom')->get();
+                        $students = Student::query()->get();
                         
                         return response()->streamDownload(function () use ($students) {
                             $spreadsheet = new Spreadsheet();
                             $sheet = $spreadsheet->getActiveSheet();
 
-                            // Bikin Header
                             $headers = ['nama', 'nisn', 'email', 'tanggal_lahir', 'jenis_kelamin', 'alamat', 'kelas'];
                             $sheet->fromArray($headers, null, 'A1');
-                            
-                            // Bikin Header Tebel & Rapi
                             $sheet->getStyle('A1:G1')->getFont()->setBold(true);
 
-                            // Masukin Data Siswa satu-satu
                             $rowNum = 2;
                             foreach ($students as $student) {
                                 $sheet->setCellValue('A' . $rowNum, $student->name);
-                                // Set NISN sebagai Text biar nol di depan kaga musnah
                                 $sheet->setCellValueExplicit('B' . $rowNum, $student->nisn, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
                                 $sheet->setCellValue('C' . $rowNum, $student->email ?? '');
                                 $sheet->setCellValue('D' . $rowNum, $student->date_of_birth ?? '');
                                 
-                                // Rapihin output Gender biar jadi Bahasa Indonesia
                                 $genderVal = '';
                                 if ($student->gender) {
                                     $val = strtolower($student->gender->value);
@@ -309,17 +310,21 @@ class StudentsTable
                                 $sheet->setCellValue('E' . $rowNum, $genderVal);
                                 
                                 $sheet->setCellValue('F' . $rowNum, $student->address ?? '');
-                                $sheet->setCellValue('G' . $rowNum, optional($student->classroom)->name ?? '');
+                                
+                                // 👇 Benerin relasi buat pas di-export ke Excel juga 👇
+                                $activeClass = StudentClassroom::where('student_id', $student->id)
+                                    ->where('is_active', true)
+                                    ->first();
+                                $className = $activeClass ? $activeClass->classroom->name : '';
+                                $sheet->setCellValue('G' . $rowNum, $className);
                                 
                                 $rowNum++;
                             }
 
-                            // Lebarin Kolom Otomatis
                             foreach (range('A', 'G') as $col) {
                                 $sheet->getColumnDimension($col)->setAutoSize(true);
                             }
 
-                            // Generate ke format .xlsx
                             $writer = new Xlsx($spreadsheet);
                             $writer->save('php://output');
                             

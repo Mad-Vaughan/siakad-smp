@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
+use Illuminate\Database\Eloquent\Builder; // 👈 Jangan lupa ini
 
 class AssesmentResource extends Resource
 {
@@ -58,5 +59,22 @@ class AssesmentResource extends Resource
             'view' => ViewAssesment::route('/{record}'),
             'edit' => EditAssesment::route('/{record}/edit'),
         ];
+    }
+
+    // 👇 MANTRA SAKTI FILTER TABEL PENILAIAN 👇
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user && $user->hasRole('teacher')) {
+            $query->whereHas('classroom', function ($q) use ($user) {
+                $q->where('teacher_id', $user->id);
+            });
+        }
+
+        return $query;
     }
 }

@@ -33,10 +33,10 @@ class StudentOverviewWidget extends StatsOverviewWidget
                 ->description('Semua penilaian aktif')
                 ->descriptionIcon('heroicon-o-academic-cap')
                 ->color('success'),
-            Stat::make('Jumlah Kejuaraan', $totalChampionship)
-                ->description('Prestasi yang tercatat')
-                ->descriptionIcon('heroicon-o-trophy')
-                ->color('warning'),
+            // Stat::make('Jumlah Kejuaraan', $totalChampionship)
+            //     ->description('Prestasi yang tercatat')
+            //     ->descriptionIcon('heroicon-o-trophy')
+            //     ->color('warning'),
         ];
     }
 }
