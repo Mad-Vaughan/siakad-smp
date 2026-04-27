@@ -17,11 +17,18 @@ class PresenceInfolist
                     ->columnSpanFull()
                     ->schema([
                         TextEntry::make('classroom.name')
-                            ->label('Kelas'),
-                        TextEntry::make('academic_year.name')
-                            ->label('Tahun Ajaran'),
+                            ->label('Kelas')
+                            ->placeholder('-'),
+                            
+                        // 👇 Ini jalur benernya pake huruf Y gede (camelCase)
+                        TextEntry::make('academicYear.name')
+                            ->label('Tahun Ajaran')
+                            ->placeholder('-'),
+                            
                         TextEntry::make('date')
-                            ->label('Tanggal'),
+                            ->label('Tanggal')
+                            ->date() // 👈 Biar format tanggalnya cakep
+                            ->placeholder('-'),
                     ]),
             ]);
     }

@@ -16,26 +16,42 @@ class TeacherInfolist
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([
-                        TextEntry::make('name'),
+                        TextEntry::make('name')
+                            ->label('Nama Lengkap'), // 👈 Mantap kearifan lokal
+                        
                         TextEntry::make('email')
-                            ->label('Email address'),
+                            ->label('Alamat Email'),
+                            
                         TextEntry::make('email_verified_at')
+                            ->label('Email Diverifikasi Pada')
                             ->dateTime()
                             ->placeholder('-'),
+                            
                         TextEntry::make('nisn')
+                            ->label('NIP / NISN') // 👈 Disesuaikan buat guru
                             ->placeholder('-'),
+                            
                         TextEntry::make('date_of_birth')
+                            ->label('Tanggal Lahir')
                             ->date()
                             ->placeholder('-'),
+                            
                         TextEntry::make('gender')
+                            ->label('Jenis Kelamin')
                             ->badge()
                             ->placeholder('-'),
+                            
                         TextEntry::make('address')
+                            ->label('Alamat Lengkap')
                             ->placeholder('-'),
+                            
                         TextEntry::make('created_at')
+                            ->label('Dibuat Pada')
                             ->dateTime()
                             ->placeholder('-'),
+                            
                         TextEntry::make('updated_at')
+                            ->label('Diperbarui Pada')
                             ->dateTime()
                             ->placeholder('-'),
                     ]),

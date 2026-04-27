@@ -16,6 +16,7 @@ class SubjectsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama Mata Pelajaran')
                     ->searchable(),
             ])
             ->filters([

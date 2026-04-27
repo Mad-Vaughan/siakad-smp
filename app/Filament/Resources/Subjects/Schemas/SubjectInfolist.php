@@ -16,7 +16,8 @@ class SubjectInfolist
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([
-                        TextEntry::make('name'),
+                        TextEntry::make('name')
+                            ->label('Nama Mata Pelajaran'), // 👈 Berubah jadi Indo
                     ]),
             ]);
     }
