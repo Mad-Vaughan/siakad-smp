@@ -41,6 +41,10 @@ Setelah itu, jalankan migrasi database (jika ditanya create database, ketik yes)
 Bash
 php artisan migrate --seed
 (Perintah --seed digunakan jika kamu sudah membuat data dummy/akun admin default)
+php artisan migrate:fresh
+php artisan db:seed --class=DummyDataSeeder
+php artisan shield:generate --all (Ketik 0 lalu Enter, terus ketik no lalu Enter)
+php artisan shield:super-admin (Ketik 0 lalu Enter, terus ketik 1 lalu Enter buat milih si "Admin Utama")
 
 4. Install Dependencies Frontend (CSS/JS)
 Install NPM dan build aset tampilannya agar rapi:
