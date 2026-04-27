@@ -30,7 +30,14 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(AdminLogin::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#2563EB', 
+                // Lo juga bisa nambahin warna lain biar makin rapi
+                'danger' => \Filament\Support\Colors\Color::Red,
+                'gray' => \Filament\Support\Colors\Color::Slate,
+                'info' => \Filament\Support\Colors\Color::Blue,
+                'success' => \Filament\Support\Colors\Color::Emerald,
+                'warning' => \Filament\Support\Colors\Color::Orange,
+                // 'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

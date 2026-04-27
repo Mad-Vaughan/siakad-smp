@@ -1,76 +1,56 @@
 @php
-    use Illuminate\Support\Facades\Storage;
-    use Illuminate\Support\Str;
-
-    $stats = collect($settings->highlight_stats ?? []);
-    $features = collect($settings->excellence_features ?? []);
-    $programs = collect($settings->program_cards ?? []);
-    $testimonials = collect($settings->testimonials ?? []);
-    $heroHighlights = collect($settings->hero_highlights ?? []);
-    $heroMedia = $settings->hero_media ? Storage::url($settings->hero_media) : null;
-
-    $resolveUrl = static function (?string $value): ?string {
-        if (blank($value)) {
-            return null;
-        }
-
-        return Str::startsWith($value, ['http://', 'https://']) ? $value : url($value);
-    };
+    $settings = App\Settings\WebsiteSetting::resolveWithFallback();
+    $news = []; // Tetap kosong dulu sampe lo nemu nama Modelnya
 @endphp
 
-<x-page-wrapper class="space-y-24 lg:space-y-32">
+<div class="relative w-full flex-1 flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
+    
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
-<div class="space-y-24 lg:space-y-32">
-    <section class="relative isolate overflow-hidden">
-        <div class="absolute inset-0 -z-10">
-            <div class="absolute inset-0 opacity-80" style="background-image: radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--site-secondary) 35%, transparent), transparent 55%), radial-gradient(circle at 80% 10%, color-mix(in srgb, var(--site-primary) 30%, transparent), transparent 60%);"></div>
+    <div class="relative z-10 w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-16 text-center border border-slate-100 mb-16">
+        
+        <div class="inline-flex items-center justify-center p-4 bg-slate-50 rounded-2xl mb-8 shadow-inner border border-slate-100">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--site-primary)">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
         </div>
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] items-center">
-            <div class="space-y-6">
-                <p class="text-sm font-semibold uppercase tracking-[0.4em] text-site-secondary">{{ $settings->hero_tagline }}</p>
-                <h1 class="text-4xl lg:text-5xl font-semibold leading-tight text-slate-900">{{ $settings->hero_title }}</h1>
-                <p class="text-base lg:text-lg text-slate-600 leading-relaxed">{{ $settings->hero_description }}</p>
-                <div class="flex flex-wrap gap-4">
-                    @php($primaryCta = $resolveUrl($settings->hero_primary_cta_url))
-                    @php($secondaryCta = $resolveUrl($settings->hero_secondary_cta_url))
-                    @if ($primaryCta)
-                        <a href="{{ $primaryCta }}" class="btn-primary inline-flex items-center gap-2">
-                            {{ $settings->hero_primary_cta_label }}
-                            <span aria-hidden="true">&rarr;</span>
-                        </a>
-                    @endif
-                    @if ($secondaryCta)
-                        <a href="{{ $secondaryCta }}" class="btn-secondary inline-flex items-center gap-2">
-                            {{ $settings->hero_secondary_cta_label }}
-                        </a>
-                    @endif
-                </div>
-                @if ($heroHighlights->isNotEmpty())
-                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-10">
-                        @foreach ($heroHighlights as $highlight)
-                            <div class="flex items-start gap-3 rounded-2xl bg-white/80 backdrop-blur px-4 py-3 shadow-sm">
-                                <span class="mt-1 h-2.5 w-2.5 rounded-full bg-site-primary"></span>
-                                <p class="text-sm text-slate-700">{{ $highlight }}</p>
-                            </div>
-                        @endforeach
+
+        <h2 class="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
+            Sistem Informasi <br/>
+            <span class="text-gradient">Akademik Terpadu</span>
+        </h2>
+
+        <p class="text-lg text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+            {{ $settings->hero_description ?? 'Selamat datang di portal layanan administrasi akademik. Akses menu admin dan guru untuk mengelola data sekolah secara efisien dan transparan.' }}
+        </p>
+
+        <a href="{{ url('/admin') }}" class="inline-flex items-center justify-center gap-3 px-10 py-4 text-lg font-bold text-white transition-all rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-105 btn-gradient">
+            Masuk ke Sistem
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+        </a>
+    </div>
+
+    <div class="relative z-10 w-full max-w-5xl">
+        <div class="text-center mb-10">
+            <h3 class="text-2xl font-bold text-slate-800">Berita Acara Terkini</h3>
+            <div class="h-1.5 w-16 mx-auto mt-4 rounded-full btn-gradient"></div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            @forelse($news as $item)
+                @empty
+                <div class="col-span-3 text-center py-16 bg-white/60 backdrop-blur-md rounded-3xl border border-slate-200 border-dashed shadow-sm">
+                    <div class="mx-auto w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l5 5v11a2 2 0 01-2 2z" />
+                        </svg>
                     </div>
-                @endif
-            </div>
-            <div class="relative">
-                <div class="absolute -top-8 -right-4 h-32 w-32 rounded-full blur-[90px]" style="background-color: color-mix(in srgb, var(--site-primary) 55%, transparent);"></div>
-                <div class="relative rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl overflow-hidden">
-                    @if ($heroMedia)
-                        <img src="{{ $heroMedia }}" alt="Sekolah" class="h-full w-full object-cover" />
-                    @else
-                        <div class="p-10 text-white" style="background-image: linear-gradient(145deg, color-mix(in srgb, var(--site-primary) 85%, transparent), color-mix(in srgb, var(--site-secondary) 65%, transparent));">
-                            <p class="text-2xl font-semibold">{{ $settings->site_name }}</p>
-                            <p class="mt-4 text-sm text-white/80 max-w-md">{{ $settings->hero_description }}</p>
-                        </div>
-                    @endif
+                    <p class="text-slate-500 font-medium">Belum ada berita acara yang diterbitkan hari ini.</p>
                 </div>
-            </div>
+            @endforelse
         </div>
-    </section>
-</x-page-wrapper>
-
-
+    </div>
+</div>

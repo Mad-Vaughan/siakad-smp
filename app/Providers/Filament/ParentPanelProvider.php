@@ -28,7 +28,14 @@ class ParentPanelProvider extends PanelProvider
             ->path('parent')
             ->login(ParentLogin::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#2563EB', 
+                // Lo juga bisa nambahin warna lain biar makin rapi
+                'danger' => \Filament\Support\Colors\Color::Red,
+                'gray' => \Filament\Support\Colors\Color::Slate,
+                'info' => \Filament\Support\Colors\Color::Blue,
+                'success' => \Filament\Support\Colors\Color::Emerald,
+                'warning' => \Filament\Support\Colors\Color::Orange,
+                // 'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Parent/Resources'), for: 'App\Filament\Parent\Resources')
             ->discoverPages(in: app_path('Filament/Parent/Pages'), for: 'App\Filament\Parent\Pages')
