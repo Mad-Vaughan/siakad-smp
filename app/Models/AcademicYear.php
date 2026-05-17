@@ -12,6 +12,7 @@ class AcademicYear extends Model
 
     protected $fillable = [
         'name',
+        'semester',
         'start_date',
         'end_date',
         'is_active',
@@ -24,12 +25,16 @@ class AcademicYear extends Model
             $academicYear->seq = AcademicYear::max('seq') + 1;
             if ($academicYear->is_active) {
                 AcademicYear::where('is_active', true)->update(['is_active' => false]);
+                StudentClassroom::whereHas('classroom', fn ($query) => $query->where('academic_year_id', '!=', $academicYear->id))
+                    ->update(['is_active' => false]);
             }
         });
 
         static::updating(function ($academicYear) {
             if ($academicYear->is_active) {
                 AcademicYear::where('is_active', true)->where('id', '!=', $academicYear->id)->update(['is_active' => false]);
+                StudentClassroom::whereHas('classroom', fn ($query) => $query->where('academic_year_id', '!=', $academicYear->id))
+                    ->update(['is_active' => false]);
             }
         });
     }

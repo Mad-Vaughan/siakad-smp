@@ -22,6 +22,8 @@ class ManageWebsite extends SettingsPage
 {
     use HasPageShield;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string $settings = WebsiteSetting::class;

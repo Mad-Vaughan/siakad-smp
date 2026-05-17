@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    # Matiin fitur liat isi folder biar aman
+    Options -Indexes
+
+    RewriteEngine On
+
+    # Amankan file .env biar kaga bisa dicolong hacker
+    RewriteRule ^\.env - [F,L,NC]
+
+    # Arahin semua pengunjung langsung masuk ke folder public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ /public/$1 [L,QSA]
+</IfModule>

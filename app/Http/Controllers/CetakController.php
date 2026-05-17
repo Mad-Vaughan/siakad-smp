@@ -2,56 +2,81 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
+use App\Enums\PresenceStatus;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
+use App\Models\Presence;
+use App\Models\Schedule; // 👈 Wajib import buat Mapel
+use App\Models\Student; // 👈 Wajib import buat Mapel
 use App\Models\StudentClassroom;
-use App\Models\StudentPresence;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+
+// 👈 Mesin PDF-nya
 
 class CetakController extends Controller
 {
-    public function rekapFinal($classroom_id, $year_id)
+    // ==============================================================
+    // 1. REKAP HARIAN (FUNGSI BAWAAN LU YANG UDAH DIPERBAIKI)
+    // ==============================================================
+    public function rekapFinal(Request $request, $classroom_id, $year_id)
     {
         $classroom = Classroom::findOrFail($classroom_id);
         $academicYear = AcademicYear::findOrFail($year_id);
-        
-        // 👇 JURUS PAMUNGKAS: Cari ID Siswa lewat tabel perantara (StudentClassroom) 👇
-        $studentIds = StudentClassroom::where('classroom_id', $classroom_id)
-            ->where('is_active', true) // Ambil yang kelasnya lagi aktif aja
-            ->pluck('student_id');
+        $semester = $academicYear->semester;
 
-        // Ambil data siswanya berdasarkan ID yang ketemu
-        $students = Student::whereIn('id', $studentIds)->get();
+        // Cari ID siswa yang aktif di kelas & tahun ajaran tersebut
+        $studentIds = StudentClassroom::query()
+            ->where('classroom_id', $classroom->id)
+            ->where('is_active', true)
+            ->pluck('student_id')
+            ->toArray();
 
-        if ($students->isEmpty()) {
-            return "Waduh Jon, di tabel 'student_classrooms' kaga ada siswa yang aktif di kelas " . $classroom->name . ".";
-        }
+        // Tarik data siswa
+        $students = Student::query()
+            ->whereIn('id', $studentIds)
+            ->orderBy('name')
+            ->get();
 
         foreach ($students as $student) {
-            // 👇 HITUNG ABSENSI PAKE LOGIC RELASI LO 👇
-            // Kita ambil dari StudentPresence, tapi di-filter berdasarkan tanggal di tabel induknya (Presence)
-            $presences = StudentPresence::where('student_id', $student->id)
-                ->whereHas('presence', function ($q) use ($academicYear) {
-                    $q->whereBetween('date', [$academicYear->start_date, $academicYear->end_date]);
+            // 1. Tarik Data Presensi pakai Query biar Aman
+            $attendances = \App\Models\StudentPresence::where('student_id', $student->id)
+                ->whereHas('presence', function ($q) use ($classroom, $academicYear) {
+                    $q->where('classroom_id', $classroom->id)
+                        ->where('academic_year_id', $academicYear->id)
+                        ->where('type', 'harian'); // 👈 INI OBAT ANTI INFLASINYA JON!
                 })->get();
 
-            // Pake Accessor (hadir, sakit, dll) yang udah lo buat cantik-cantik di model StudentPresence
-            $student->total_h = $presences->filter(fn($p) => $p->hadir)->count();
-            $student->total_s = $presences->filter(fn($p) => $p->sakit)->count();
-            $student->total_i = $presences->filter(fn($p) => $p->izin)->count();
-            $student->total_a = $presences->filter(fn($p) => $p->alpa || $p->terlambat)->count(); // Telat gue gabung alpa ya, atau sesuaikan aja
+            $student->total_h = $attendances->filter(fn ($p) => $p->status === PresenceStatus::PRESENT)->count();
+            $student->total_s = $attendances->filter(fn ($p) => $p->status === PresenceStatus::SICK)->count();
+            $student->total_i = $attendances->filter(fn ($p) => $p->status === PresenceStatus::PERMISSION)->count();
+            $student->total_a = $attendances->filter(fn ($p) => in_array($p->status, [PresenceStatus::ABSENT, PresenceStatus::LATE], true))->count();
 
-            // Rata-rata nilai (Set 0 dulu sampe lo fix bikin sistem Penilaian)
-            // Hitung Rata-rata nilai berdasarkan Tahun Ajaran yang dicetak
-            // Kita numpang query ke relasi 'assessment' (Tabel Induk Penilaian)
-            $student->rata_nilai = \App\Models\StudentAssesment::where('student_id', $student->id)
-                ->whereHas('assessment', function($q) use ($academicYear) {
-                    $q->where('academic_year_id', $academicYear->id);
-                })
-                ->avg('score') ?? 0; // KALO KOLOM NILAI LO BUKAN 'score', ganti jadi 'nilai' atau 'point' ya Jon!
+            // 2. Tarik Rata-Rata Nilai pakai Query
+            $student->rata_nilai = round(\App\Models\StudentAssesment::where('student_id', $student->id)
+                ->whereHas('assessment', function ($q) use ($classroom, $academicYear) {
+                    $q->where('classroom_id', $classroom->id)
+                        ->where('academic_year_id', $academicYear->id);
+                })->avg('score') ?? 0, 2);
         }
 
-        return view('print.rekap-tu', compact('students', 'classroom', 'academicYear'));
+        return view('print.rekap-tu', compact('students', 'classroom', 'academicYear', 'semester'));
+    }
+
+    // ==============================================================
+    // 2. REKAP MAPEL (FUNGSI BARU BUAT PDF)
+    // ==============================================================
+    public function cetakRekapMapel(Request $request)
+    {
+        $scheduleId = $request->query('schedule');
+
+        $schedule = Schedule::with(['classroom.students', 'subject'])->findOrFail($scheduleId);
+        $students = $schedule->classroom->students()->orderBy('name', 'asc')->get();
+        $pertemuan = Presence::where('schedule_id', $scheduleId)->where('type', 'mapel')->orderBy('date', 'asc')->get();
+
+        $pdf = Pdf::loadView('pdf.rekap_mapel', compact('schedule', 'students', 'pertemuan'))
+            ->setPaper('a4', 'landscape'); // Kertas A4 Tidur
+
+        return $pdf->stream('Rekap_Mapel_'.$schedule->subject->name.'.pdf');
     }
 }

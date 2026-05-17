@@ -17,8 +17,17 @@ class AcademicYearsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                ->label('Tahun Ajaran')
+                    ->label('Tahun Ajaran')
                     ->searchable(),
+                TextColumn::make('semester')
+                    ->label('Semester')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'ganjil' => 'warning',
+                        'genap' => 'success',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
                 TextColumn::make('start_date')
                     ->label('Tanggal Mulai')
                     ->date()
@@ -36,11 +45,17 @@ class AcademicYearsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+
+                // 👇 GEMBOK FIX: Cuma ngeblokir Guru, TU & Admin aman! 👇
+                EditAction::make()
+                    ->visible(fn () => ! auth()->user()->hasRole(['guru', 'teacher'])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+
+                    // 👇 GEMBOK FIX: Cuma ngeblokir Guru, TU & Admin aman! 👇
+                    DeleteBulkAction::make()
+                        ->visible(fn () => ! auth()->user()->hasRole(['guru', 'teacher'])),
                 ]),
             ]);
     }

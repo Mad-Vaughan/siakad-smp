@@ -21,12 +21,12 @@ class Student extends User
     {
         static::addGlobalScope('student', function ($builder) {
             $builder->whereHas('roles', function ($query) {
-                $query->where('name', Roles::STUDENT);
+                $query->where('name', Roles::STUDENT->value);
             });
         });
 
         static::created(function ($student) {
-            $student->assignRole(Roles::STUDENT);
+            $student->assignRole(Roles::STUDENT->value);
         });
     }
 
@@ -39,6 +39,11 @@ class Student extends User
             'id',
             'id',
             'classroom_id'
-        )->where('is_active', true);
+        )->where('student_classrooms.is_active', true);
+    }
+
+    public function studentClassrooms()
+    {
+        return $this->hasMany(StudentClassroom::class, 'student_id');
     }
 }

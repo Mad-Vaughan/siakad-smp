@@ -17,6 +17,10 @@ class Classroom extends Model
         'teacher_id',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function academicYear()
     {
         return $this->belongsTo(AcademicYear::class);
@@ -44,6 +48,12 @@ class Classroom extends Model
         );
     }
 
+    // 👇 TAMBAHIN KODINGAN INI DI DALEM CLASS 👇
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'classroom_subject');
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);
@@ -52,5 +62,10 @@ class Classroom extends Model
     public function assesments(): HasMany
     {
         return $this->hasMany(Assesment::class);
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
     }
 }

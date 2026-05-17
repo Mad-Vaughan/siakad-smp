@@ -44,6 +44,11 @@ class Assesment extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
     public function studentAssesments()
     {
         return $this->hasMany(StudentAssesment::class);

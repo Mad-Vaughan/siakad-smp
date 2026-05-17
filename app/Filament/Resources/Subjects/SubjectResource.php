@@ -12,9 +12,11 @@ use App\Filament\Resources\Subjects\Schemas\SubjectInfolist;
 use App\Filament\Resources\Subjects\Tables\SubjectsTable;
 use App\Models\Subject;
 use BackedEnum;
+// 👈 PENGAMAN PHP 8.4
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
 
 class SubjectResource extends Resource
@@ -28,6 +30,11 @@ class SubjectResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $label = 'Mata Pelajaran';
+
+    protected static ?string $navigationLabel = 'Mata Pelajaran';
+
+    // 👇 URUTAN 2 👇
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -46,9 +53,7 @@ class SubjectResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -60,4 +65,24 @@ class SubjectResource extends Resource
             'edit' => EditSubject::route('/{record}/edit'),
         ];
     }
+
+    // 👇 JURUS MASTER DATA ABADI 👇
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // Kalo yang login Admin atau TU, bebasin liat semua Mapel (Namanya juga Master Data Katalog)
+        if (auth()->check() && auth()->user()->hasAnyRole(['admin', 'super_admin', 'tu'])) {
+            return $query;
+        }
+
+        // Kalo yang login Guru: cuma liat mapel yang dia pegang
+        if (auth()->check() && auth()->user()->hasRole('teacher')) {
+            $query->where('teacher_id', auth()->id());
+        }
+
+        return $query;
+    }
+
+    // Access and navigation handled by Filament Shield
 }

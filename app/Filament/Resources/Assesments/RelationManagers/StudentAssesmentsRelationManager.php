@@ -28,6 +28,7 @@ class StudentAssesmentsRelationManager extends RelationManager
                 TextEntry::make('score')
                     ->label('Nilai'),
             ]);
+
     }
 
     public function table(Table $table): Table
@@ -44,6 +45,13 @@ class StudentAssesmentsRelationManager extends RelationManager
                     ->rules(['required', 'numeric', 'min:0', 'max:100'])
                     ->label('Nilai')
                     ->sortable(),
+
+                TextInputColumn::make('note')
+                    ->label('Catatan')
+                    ->placeholder('Masukkan Catatan (Opsional)')
+                    ->disabled(fn () => ! Auth::user()->can('Update:Assesment'))
+                    ->sortable(),
+
             ])
             ->filters([
                 //
@@ -59,6 +67,8 @@ class StudentAssesmentsRelationManager extends RelationManager
                             ->title('Berhasil menyimpan nilai siswa.')
                             ->success()
                             ->send();
+
+                        return redirect('/admin/assesment-and-championship-management/assesments');
                     })
                     ->color('success'),
             ])

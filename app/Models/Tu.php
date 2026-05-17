@@ -16,12 +16,14 @@ class Tu extends User
     {
         static::addGlobalScope('tu', function ($builder) {
             $builder->whereHas('roles', function ($query) {
-                $query->where('name', Roles::TU);
+                // 👇 UDAH DITAMBAHIN ->value 👇
+                $query->where('name', Roles::TU->value);
             });
         });
 
         static::created(function ($tu) {
-            $tu->assignRole(Roles::TU);
+            // 👇 UDAH DITAMBAHIN ->value 👇
+            $tu->assignRole(Roles::TU->value);
         });
     }
 

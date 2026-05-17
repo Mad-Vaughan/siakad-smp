@@ -17,18 +17,31 @@ class SubjectsTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama Mata Pelajaran')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
+                TextColumn::make('teacher.name')
+                    ->label('Guru Pengampu')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-m-user'),
+
+                // 👇 KOLOM KELAS UDAH GUE MUSNAHKAN DARI LAYAR JON! 👇
             ])
             ->filters([
                 //
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+
+                EditAction::make()
+                    ->visible(fn () => ! auth()->user()->hasRole(['guru', 'teacher'])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => ! auth()->user()->hasRole(['guru', 'teacher'])),
                 ]),
             ]);
     }

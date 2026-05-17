@@ -23,7 +23,7 @@ class AdminLogin extends BaseLogin
     protected function getParentLoginAction(): Action
     {
         return Action::make('parentLogin')
-            ->label('Masuk sebagai Orang Tua')
+            ->label('Masuk sebagai Orang Tua atau Siswa')
             ->url(Filament::getPanel('parent')?->getLoginUrl() ?? url('/parent/login'))
             ->color('gray')
             ->outlined();
@@ -36,5 +36,11 @@ class AdminLogin extends BaseLogin
             ->url(url('/'))
             ->color('gray')
             ->outlined();
+    }
+
+    protected function getAuthenticateFormAction(): Action
+    {
+        return parent::getAuthenticateFormAction()
+            ->label('Masuk sebagai Admin / Guru');
     }
 }

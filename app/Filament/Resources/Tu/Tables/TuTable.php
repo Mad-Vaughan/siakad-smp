@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Tu\Tables;
 
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -16,35 +16,41 @@ class TuTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama')
+                    ->label('Nama Lengkap')
                     ->searchable()
-                    ->sortable(),
+                    ->weight('bold')
+                    ->icon('heroicon-m-user'),
+
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
-                    ->sortable(),
+                    ->icon('heroicon-m-envelope'),
+
                 TextColumn::make('gender')
                     ->label('Jenis Kelamin')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match (strtolower($state->value ?? $state ?? '')) {
+                        'l', 'male', 'laki-laki' => 'Laki-laki',
+                        'p', 'female', 'perempuan' => 'Perempuan',
+                        default => $state ?? '-',
+                    })
+                    ->color(fn ($state) => match (strtolower($state->value ?? $state ?? '')) {
+                        'l', 'male', 'laki-laki' => 'info',
+                        'p', 'female', 'perempuan' => 'warning',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ])
-            ->paginated([10, 25, 50, 100]);
+            ]);
     }
 }

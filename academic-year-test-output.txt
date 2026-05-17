@@ -1,0 +1,26 @@
+﻿
+   FAIL  Tests\Feature\Filament\Resources\AcademicYearResourceTest
+  Γ¿» it can create an academic year and deactivate old active year       22.41s  
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ  
+   FAILED  Tests\Feature\Filament\Resources\AcademicYearResourceTest > it caΓÇª   
+  Component has errors: "data.semester"
+Failed asserting that false is true.
+
+  at vendor\livewire\livewire\src\Features\SupportValidation\TestsValidation.php:109
+    105Γûò     {
+    106Γûò         $errors = $this->errors();
+    107Γûò 
+    108Γûò         if (empty($keys)) {
+  Γ₧£ 109Γûò             PHPUnit::assertTrue($errors->isEmpty(), 'Component has errors: "'.implode('", "', $errors->keys()).'"');
+    110Γûò 
+    111Γûò             return $this;
+    112Γûò         }
+    113Γûò
+
+  1   vendor\livewire\livewire\src\Features\SupportValidation\TestsValidation.php:109
+  2   vendor\filament\forms\src\Testing\TestsForms.php:138
+
+
+  Tests:    1 failed (3 assertions)
+  Duration: 30.60s
+

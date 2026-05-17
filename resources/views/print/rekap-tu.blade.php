@@ -58,7 +58,7 @@
         /* Informasi Kelas (Meta Info) */
         .meta-info {
             width: 100%;
-            max-width: 450px;
+            /* max-width: 450px;  <-- INI PENYAKITNYA UDAH KITA BUANG! */
             margin-bottom: 20px;
             border-collapse: collapse;
         }
@@ -67,6 +67,7 @@
             vertical-align: top;
             font-size: 12px;
             font-weight: bold;
+
         }
         .meta-info .label {
             width: 180px;
@@ -150,24 +151,31 @@
 
     <table class="meta-info">
         <tr>
-            <td class="label">Tahun Ajaran</td>
-            <td>: {{ $academicYear->name ?? '-' }}</td> 
+            <td width="15%">Kelas</td>
+            <td width="2%">:</td>
+            <td width="33%">{{ $classroom->name ?? '-' }}</td>
+            
+            <td width="15%">Tahun Ajaran</td>
+            <td width="2%">:</td>
+            <td width="33%">{{ $academicYear->name ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="label">Kelas</td>
-            <td>: {{ $classroom->name ?? '-' }}</td> 
+            <td>Wali Kelas</td>
+            <td>:</td>
+            <td>{{ $classroom->teacher->name ?? 'Belum Diatur' }}</td>
+            
+            <td>Semester</td>
+            <td>:</td>
+            <td>{{ ucfirst($semester ?? '-') }}</td>
         </tr>
         <tr>
-            <td class="label">Wali Kelas</td>
-            <td>: {{ $classroom->teacher->name ?? 'Belum ada Wali Kelas' }}</td> 
-        </tr>
-        <tr>
-            <td class="label">Jumlah Peserta Didik</td>
-            <td>: {{ $students->count() }} orang</td> 
-        </tr>
-        <tr>
-            <td class="label">Waktu Cetak</td>
-            <td>: {{ now()->format('d F Y H:i') }} WIB</td>
+            <td>Jumlah Peserta</td>
+            <td>:</td>
+            <td>{{ $students->count() }} orang</td>
+            
+            <td>Waktu Cetak</td>
+            <td>:</td>
+            <td>{{ now()->format('d F Y H:i') }} WIB</td>
         </tr>
     </table>
 

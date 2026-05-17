@@ -19,6 +19,8 @@ class ManageLetterhead extends SettingsPage
 {
     use HasPageShield;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
 
     protected static string $settings = LetterheadSetting::class;

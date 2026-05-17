@@ -10,6 +10,6 @@ if (! function_exists('isAuthTeacher')) {
      */
     function isAuthTeacher(): ?bool
     {
-        return Auth::user()?->hasRole(Roles::TEACHER);
+        return Auth::user()?->hasRole(Roles::TEACHER->value);
     }
 }

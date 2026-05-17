@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Presence extends Model
 {
-    /** @use HasFactory<\Database\Factories\PresenceFactory> */
     use HasFactory;
 
     protected $fillable = [
+        'schedule_id',
+        'type',
         'classroom_id',
         'academic_year_id',
         'date',
@@ -19,8 +20,21 @@ class Presence extends Model
     protected static function booted()
     {
         static::creating(function ($presence) {
-            $academicYear = Classroom::find($presence->classroom_id)->academicYear;
-            $presence->academic_year_id = $academicYear->id;
+            // MAGIC: Kalo absennya mapel, otomatis narik kelas & tahun ajaran dari jadwalnya
+            if ($presence->type === 'mapel' && $presence->schedule_id) {
+                $jadwal = Schedule::with('classroom.academicYear')->find($presence->schedule_id);
+                if ($jadwal && $jadwal->classroom) {
+                    $presence->classroom_id = $jadwal->classroom_id;
+                    $presence->academic_year_id = $jadwal->classroom->academicYear->id;
+                }
+            }
+            // Kalo absennya harian, narik tahun ajaran dari kelas yang dipilih
+            elseif ($presence->type === 'harian' && $presence->classroom_id) {
+                $kelas = Classroom::with('academicYear')->find($presence->classroom_id);
+                if ($kelas && $kelas->academicYear) {
+                    $presence->academic_year_id = $kelas->academicYear->id;
+                }
+            }
         });
 
         static::created(function ($presence) {
@@ -31,10 +45,15 @@ class Presence extends Model
             );
         });
 
-        // 👇 INI OBAT BIAR BISA DIHAPUS JON 👇
         static::deleting(function ($presence) {
             $presence->studentPresences()->delete();
         });
+    }
+
+    // RELASI
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
     }
 
     public function classroom()

@@ -15,11 +15,12 @@ use App\Filament\Resources\Classrooms\Schemas\ClassroomInfolist;
 use App\Filament\Resources\Classrooms\Tables\ClassroomsTable;
 use App\Models\Classroom;
 use BackedEnum;
+// 👈 PENGAMAN PHP 8.4
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
-use Illuminate\Database\Eloquent\Builder; // 👈 Wajib ditambahin
 
 class ClassroomResource extends Resource
 {
@@ -32,6 +33,11 @@ class ClassroomResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $label = 'Kelas';
+
+    protected static ?string $navigationLabel = 'Kelas';
+
+    // 👇 URUTAN 3 👇
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
@@ -67,12 +73,22 @@ class ClassroomResource extends Resource
         ];
     }
 
-    // 👇 MANTRA SAKTI FILTER TABEL KELAS 👇
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
 
-        if (auth()->user()->hasRole('teacher')) {
+        // Admins see everything
+        if (auth()->check() && auth()->user()->hasAnyRole(['admin', 'super_admin'])) {
+            return $query;
+        }
+
+        // Non-admins: only classes belonging to active academic years
+        $query->whereHas('academicYear', function (Builder $q) {
+            $q->where('is_active', true);
+        });
+
+        // Teachers: additionally restrict to classes they own (wali kelas)
+        if (auth()->check() && auth()->user()->hasRole('teacher')) {
             $query->where('teacher_id', auth()->id());
         }
 

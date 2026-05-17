@@ -2,18 +2,16 @@
 
 namespace App\Filament\Parent\Pages\Auth;
 
-use App\Models\Student; // 👈 JURUS PINDAH RUMAH: Nyari datanya di tabel Siswa, bukan tabel User/Admin!
+use App\Models\User;
 use Carbon\Carbon;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+// use Filament\Forms\Components\Component; 👈 Ini gue buang biar kaga bikin PHP pusing
+use Exception;
 use Filament\Actions\Action;
-use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
 
 class Login extends BaseLogin
 {
@@ -21,161 +19,100 @@ class Login extends BaseLogin
     {
         return $schema
             ->components([
-                TextInput::make('nisn')
-                    ->label('NISN')
-                    ->numeric()
-                    ->required()
-                    ->autocomplete('username')
-                    ->autofocus()
-                    ->extraInputAttributes(['tabindex' => 1]),
-                TextInput::make('date_of_birth')
-                    ->label('Tanggal Lahir (hhbbyyyy)')
-                    ->required()
-                    ->placeholder('Contoh: 01022010')
-                    ->minLength(8)
-                    ->maxLength(10)
-                    ->extraInputAttributes([
-                        'tabindex' => 2,
-                        'inputmode' => 'numeric',
-                    ]),
+                $this->getNisnFormComponent(),
+                $this->getDobFormComponent(),
                 $this->getRememberFormComponent(),
-            ]);
+            ])
+            ->statePath('data');
     }
 
-    public function authenticate(): ?LoginResponse
+    // 👇 INI YANG DIBENERIN (Return type diganti langsung ke TextInput) 👇
+    protected function getNisnFormComponent(): TextInput
+    {
+        return TextInput::make('nisn')
+            ->label('NISN')
+            ->required()
+            ->autofocus()
+            ->extraInputAttributes(['tabindex' => 1]);
+    }
+
+    // 👇 INI JUGA DIBENERIN 👇
+    protected function getDobFormComponent(): TextInput
+    {
+        return TextInput::make('date_of_birth')
+            ->label('Tanggal Lahir (Contoh: 16122010)')
+            ->required()
+            ->extraInputAttributes(['tabindex' => 2]);
+    }
+
+    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
     {
         try {
             $this->rateLimit(5);
-        } catch (TooManyRequestsException $exception) {
-            $this->getRateLimitedNotification($exception)?->send();
+        } catch (\Filament\Http\Exceptions\TooManyRequestsException $exception) {
+            $this->addError('nisn', __('filament-panels::pages/auth/login.messages.throttled', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => ceil($exception->secondsUntilAvailable / 60),
+            ]));
+
             return null;
         }
 
         $data = $this->form->getState();
+        $nisn = $data['nisn'];
+        $dobInput = $data['date_of_birth'];
 
-        $nisnInput = (string) ($data['nisn'] ?? '');
-        $nisnVariants = array_unique([
-            $nisnInput,
-            ltrim($nisnInput, '0'),
-            str_pad(ltrim($nisnInput, '0'), 10, '0', STR_PAD_LEFT),
-        ]);
+        // JURUS KONVERSI TANGGAL (Dari 01112013 menjadi 2013-11-01)
+        $formattedDob = $dobInput;
+        $cleanDob = preg_replace('/[^0-9]/', '', $dobInput);
 
-        $user = \App\Models\Student::query()
-            ->whereIn('nisn', array_filter($nisnVariants))
+        if (strlen($cleanDob) === 8) {
+            try {
+                $formattedDob = Carbon::createFromFormat('dmY', $cleanDob)->format('Y-m-d');
+            } catch (Exception $e) {
+                // Abaikan jika gagal parse, gunakan input asli
+            }
+        }
+
+        // Cari user berdasarkan NISN & Tanggal Lahir murni
+        $user = User::where('nisn', $nisn)
+            ->where('date_of_birth', $formattedDob)
             ->first();
 
-        $isPasswordValid = false;
-
-        if ($user) {
-            $inputTgl = trim($data['date_of_birth'] ?? '');
-            $formattedTgl = null;
-            
-            // Ubah ketikan ortu (01012010) jadi standar (2010-01-01)
-            if (strlen($inputTgl) === 8 && is_numeric($inputTgl)) {
-                $hari = substr($inputTgl, 0, 2);
-                $bulan = substr($inputTgl, 2, 2);
-                $tahun = substr($inputTgl, 4, 4);
-                $formattedTgl = "$tahun-$bulan-$hari";
-            } elseif (strlen($inputTgl) >= 8) {
-                $parsed = $this->resolveBirthDate($inputTgl);
-                if ($parsed) $formattedTgl = $parsed->toDateString();
-            }
-
-            // 👇 JURUS PENYAMAAN TANGGAL EXCEL VS STANDAR 👇
-            $dbDateRaw = (string) $user->date_of_birth;
-            
-            try {
-                // Kita paksa baca tanggal aneh dari Excel (1/1/2010) jadi standar (2010-01-01)
-                $dbDateStandard = \Carbon\Carbon::parse($dbDateRaw)->format('Y-m-d');
-            } catch (\Throwable $e) {
-                $dbDateStandard = $dbDateRaw;
-            }
-
-            if ($formattedTgl) {
-                // Cek Password Hash ATAU Tanggal Lahir yang udah disamain formatnya
-                if (\Illuminate\Support\Facades\Hash::check($formattedTgl, $user->password) || 
-                    \Illuminate\Support\Facades\Hash::check($dbDateRaw, $user->password) || 
-                    $dbDateStandard === $formattedTgl) {
-                    $isPasswordValid = true;
-                }
-            }
-        }
-
-        if (! $user || ! $isPasswordValid) {
-            \Illuminate\Support\Facades\Log::warning('Parent login failed', [
-                'nisn' => $nisnInput,
-                'input_dob' => $data['date_of_birth'] ?? null,
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'data.nisn' => 'NISN atau Tanggal Lahir yang Anda masukkan salah. Silakan periksa kembali.',
             ]);
-            $this->throwFailureValidationException();
         }
 
-        if (method_exists($user, 'canAccessPanel') && ! $user->canAccessPanel(\Filament\Facades\Filament::getCurrentOrDefaultPanel())) {
-            $this->throwFailureValidationException();
-        }
+        // Login bypass tanpa ngecek password Hash
+        Filament::auth()->login($user, $data['remember'] ?? false);
 
-        \Filament\Facades\Filament::auth()->login($user, $data['remember'] ?? false);
         session()->regenerate();
 
-        return app(LoginResponse::class);
+        // 👇 INI JURUS CUCI OTAKNYA JON! MAKSA SETIR KE /parent 👇
+        session()->forget('url.intended'); // 1. Hapus ingatan masa lalu
+        session()->put('url.intended', url('/parent')); // 2. Tanam ingatan baru WAJIB ke /parent!
+        // 👆 BATAS JURUS SAKTI 👆
+
+        return app(\Filament\Auth\Http\Responses\Contracts\LoginResponse::class);
     }
 
-    /**
-     * @return array<Action>
-     */
+    // Ubah Action Button di bawah Form Login
     protected function getFormActions(): array
     {
         return [
-            $this->getAuthenticateFormAction(),
-            $this->getAdminLoginAction(),
-            $this->getBackToHomeAction(),
+            $this->getAuthenticateFormAction()->label('Masuk'),
+            Action::make('adminLogin')
+                ->label('Masuk sebagai Admin / Guru')
+                ->url(url('/admin/login'))
+                ->color('gray')
+                ->outlined(),
+            Action::make('backToHome')
+                ->label('Kembali ke Halaman Utama')
+                ->url(url('/'))
+                ->color('gray')
+                ->outlined(),
         ];
-    }
-
-    protected function getAdminLoginAction(): Action
-    {
-        return Action::make('adminLogin')
-            ->label('Masuk sebagai Admin')
-            ->url(Filament::getPanel('admin')?->getLoginUrl() ?? url('/admin/login'))
-            ->color('gray')
-            ->outlined();
-    }
-
-    protected function getBackToHomeAction(): Action
-    {
-        return Action::make('backToHome')
-            ->label('Kembali ke Halaman Utama')
-            ->url(url('/'))
-            ->color('gray')
-            ->outlined();
-    }
-
-    protected function resolveBirthDate(string $input): ?Carbon
-    {
-        $input = trim($input);
-        if ($input === '') return null;
-
-        $formats = ['dmY', 'dmy', 'Y-m-d', 'Ymd', 'd-m-Y', 'd/m/Y'];
-
-        foreach ($formats as $fmt) {
-            try {
-                $dt = Carbon::createFromFormat($fmt, $input);
-                if ($dt !== false) return $dt;
-            } catch (\Throwable $e) {
-                // continue
-            }
-        }
-
-        try {
-            return Carbon::parse($input);
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-
-    protected function throwFailureValidationException(): never
-    {
-        throw ValidationException::withMessages([
-            'data.nisn' => __('Kredensial yang diberikan tidak dapat ditemukan.'),
-        ]);
     }
 }

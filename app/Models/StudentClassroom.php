@@ -7,37 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentClassroom extends Model
 {
-    /** @use HasFactory<\Database\Factories\StudentClassroomFactory> */
     use HasFactory;
 
+    // 👇 INI BIANG KEROKNYA! Harus didaftarin biar Seeder bisa ngisi status aktifnya 👇
     protected $fillable = [
         'student_id',
         'classroom_id',
         'is_active',
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($studentClassroom) {
-            if ($studentClassroom->is_active) {
-                StudentClassroom::where('student_id', $studentClassroom->student_id)
-                    ->where('is_active', true)
-                    ->update(['is_active' => false]);
-            }
-        });
-
-        static::updating(function ($studentClassroom) {
-            if ($studentClassroom->is_active) {
-                StudentClassroom::where('student_id', $studentClassroom->student_id)
-                    ->where('is_active', true)
-                    ->where('id', '!=', $studentClassroom->id)
-                    ->update(['is_active' => false]);
-            }
-        });
-    }
+    // 👇 OBAT SILANG MERAH: Taruhnya di sini Jon, bukan di model Kelas 👇
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function student()
     {
+        // Sesuaikan sama relasi lu, pake User::class atau Student::class
         return $this->belongsTo(Student::class, 'student_id');
     }
 

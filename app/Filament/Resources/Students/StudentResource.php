@@ -7,7 +7,7 @@ use App\Filament\Resources\Students\Pages\CreateStudent;
 use App\Filament\Resources\Students\Pages\EditStudent;
 use App\Filament\Resources\Students\Pages\ListStudents;
 use App\Filament\Resources\Students\Pages\ViewStudent;
-use App\Filament\Resources\Students\RelationManagers\ChampionshipsRelationManager;
+use App\Filament\Resources\Students\RelationManagers\StudentAssesmentsRelationManager;
 use App\Filament\Resources\Students\RelationManagers\StudentPresencesRelationManager;
 use App\Filament\Resources\Students\Schemas\StudentForm;
 use App\Filament\Resources\Students\Schemas\StudentInfolist;
@@ -17,6 +17,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
 
 class StudentResource extends Resource
@@ -49,8 +50,8 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ChampionshipsRelationManager::class,
             StudentPresencesRelationManager::class,
+            StudentAssesmentsRelationManager::class,
         ];
     }
 
@@ -63,4 +64,24 @@ class StudentResource extends Resource
             'edit' => EditStudent::route('/{record}/edit'),
         ];
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->check() && auth()->user()->hasRole('student')) {
+            $query->where('id', auth()->id());
+        }
+
+        if (auth()->check() && auth()->user()->hasRole(['guru', 'teacher'])) {
+            $query->whereHas('studentClassrooms.classroom', function ($cq) {
+                $cq->where('teacher_id', auth()->id());
+            });
+        }
+
+        // 👇 GEMBOK UDAH DIHANCURIN! ADMIN & TU BEBAS LIAT SEMUA SISWA! 👇
+        return $query;
+    }
+
+    // Access and navigation handled by Filament Shield
 }

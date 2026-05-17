@@ -9,7 +9,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $settings->site_name }} - Portal Akademik</title>
+        <title>{{ $settings->site_name }} - Sistem Pengelolaan Nilai Dan Presensi</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
         <style>
@@ -33,11 +33,11 @@
                 @if ($logoUrl)
                     <img src="{{ $logoUrl }}" class="h-12 w-12 rounded-full object-cover shadow-sm">
                 @else
-                    <div class="h-10 w-10 rounded-xl btn-gradient text-white flex items-center justify-center font-bold text-lg shadow-md">SM</div>
+                    <div class="h-10 w-10 rounded-xl btn-gradient text-white flex items-center justify-center font-bold text-lg shadow-md" >MI</div>
                 @endif
                 <div>
                     <h1 class="font-bold text-xl tracking-tight text-slate-900 uppercase">{{ $settings->site_name }}</h1>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-widest">Portal Akademik</p>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-widest">Sistem Pengelolaan Nilai Dan Absensi</p>
                 </div>
             </div>
             <a href="{{ url('/admin') }}" class="btn-gradient px-6 py-2.5 rounded-full text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all hidden md:block">

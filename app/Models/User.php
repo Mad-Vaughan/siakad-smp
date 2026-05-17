@@ -2,10 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use App\Enums\Gender;
-use App\Enums\Roles;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,16 +12,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
     protected $guard_name = 'web';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -33,23 +24,21 @@ class User extends Authenticatable implements FilamentUser
         'date_of_birth',
         'gender',
         'address',
+        'nip',
+        'employment_status',
+        'active_status',
+        'nipd',
+        'nik',
+        'birth_place',
+        'religion',
+        'phone',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -82,13 +71,9 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            // Tambahin Roles::STUDENT di sini biar dia bisa masuk ke /admin
-            'admin' => $this->hasAnyRole([Roles::ADMIN, Roles::TEACHER, Roles::TU, Roles::STUDENT]),
-            
-            // Panel parent tetep buat student
-            'parent' => $this->hasRole(Roles::STUDENT),
-            
+            'admin' => $this->hasAnyRole(['admin', 'teacher', 'tu']),
+            'parent' => $this->hasRole('student'),
             default => false,
         };
-}
+    }
 }

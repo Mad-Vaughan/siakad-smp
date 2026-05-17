@@ -22,7 +22,7 @@ class ChampionshipForm
                     ->columnSpanFull()
                     ->schema([
                         Select::make('student_id')
-                            ->relationship('student', 'name', fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', Roles::STUDENT)))
+                            ->relationship('student', 'name', fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', Roles::STUDENT->value)))
                             ->searchable()
                             ->label('Pilih Siswa')
                             ->preload()

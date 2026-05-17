@@ -9,6 +9,7 @@ class ListStudentPresences extends ListRecords
 {
     protected static string $resource = StudentPresenceResource::class;
 
+    // WIDGET KITA HAPUS TOTAL BIAR LIVEWIRE KAGA NGAMBEK!
     protected function getHeaderActions(): array
     {
         return [];

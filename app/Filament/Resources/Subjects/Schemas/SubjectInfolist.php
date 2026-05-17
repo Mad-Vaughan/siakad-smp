@@ -12,12 +12,19 @@ class SubjectInfolist
     {
         return $schema
             ->components([
-                Section::make('')
+                Section::make('Informasi Mata Pelajaran')
                     ->columns(2)
-                    ->columnSpanFull()
                     ->schema([
                         TextEntry::make('name')
-                            ->label('Nama Mata Pelajaran'), // 👈 Berubah jadi Indo
+                            ->label('Nama Mata Pelajaran')
+                            ->weight('bold'),
+
+                        TextEntry::make('teacher.name')
+                            ->label('Guru Pengampu')
+                            ->badge()
+                            ->color('success'),
+
+                        // 👇 BAGIAN DAFTAR KELAS UDAH GUE BUMI HANGUSKAN TOTAL! 👇
                     ]),
             ]);
     }

@@ -15,6 +15,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
 
 class AcademicYearResource extends Resource
@@ -28,6 +29,10 @@ class AcademicYearResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $label = 'Tahun Ajaran';
+
+    protected static ?string $navigationLabel = 'Tahun Ajaran';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -46,9 +51,7 @@ class AcademicYearResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -60,4 +63,23 @@ class AcademicYearResource extends Resource
             'edit' => EditAcademicYear::route('/{record}/edit'),
         ];
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // Admins and TU can see all years
+        if (auth()->check() && auth()->user()->hasAnyRole(['admin', 'super_admin', 'tu'])) {
+            return $query;
+        }
+
+        // Other users: only active academic year(s)
+        $query->where('is_active', true);
+
+        return $query;
+    }
+
+    // CATATAN JON:
+    // Fungsi canCreate, canEdit, dan canDelete SENGAJA DIHAPUS
+    // biar Filament Shield (menu centang-centang) yang ambil alih 100%!
 }

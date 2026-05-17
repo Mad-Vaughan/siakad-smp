@@ -13,30 +13,35 @@ class PresenceForm
     {
         return $schema
             ->components([
-                Section::make('')
-                    ->columns(2)
+                Section::make('Buat Daftar Hadir Harian')
+                    ->columns(1)
                     ->columnSpanFull()
                     ->schema([
+                        // 👇 Kunci mati jadi Harian 👇
+                        Select::make('type')
+                            ->label('Jenis Presensi')
+                            ->options([
+                                'harian' => 'Presensi Harian (Wali Kelas)',
+                            ])
+                            ->default('harian')
+                            ->disabled() // Kunci biar kaga bisa diubah User
+                            ->dehydrated() // Tetep dikirim ke database pas di-save
+                            ->required(),
+
                         Select::make('classroom_id')
                             ->label('Kelas')
                             ->preload()
                             ->relationship('classroom', 'name', function ($query) {
-                                // 👇 Filter 1: Cuma ambil kelas dari Tahun Ajaran yang Aktif
-                                $query->whereHas('academicYear', function ($q) {
-                                    $q->where('is_active', true);
-                                });
-
-                                // 👇 Filter 2: JURUS ANTI NGINTIP KELAS ORANG 👇
-                                // Kalo yang login guru, cuma nampilin kelas yang dia ajar
+                                $query->whereHas('academicYear', fn ($q) => $q->where('is_active', true));
                                 if (auth()->user()->hasRole('teacher')) {
                                     $query->where('teacher_id', auth()->id());
                                 }
                             })
                             ->searchable()
                             ->required(),
-                            
+
                         DatePicker::make('date')
-                            ->label('Tanggal')
+                            ->label('Tanggal Pertemuan')
                             ->default(now())
                             ->required(),
                     ]),

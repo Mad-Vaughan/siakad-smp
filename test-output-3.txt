@@ -1,0 +1,17 @@
+
+   PASS  Tests\Feature\Filament\Resources\ClassroomResourceTest
+  ✓ it can render classroom list page                                    4.34s  
+  ✓ it shows classrooms in the table                                     3.23s  
+  ✓ it can create a classroom                                            3.28s  
+  ✓ it can update a classroom                                            3.28s  
+  ✓ it can view classroom details                                        3.25s  
+  ✓ it can delete classrooms via bulk action                             3.33s  
+  ✓ it exposes student creation action in relation manager               3.16s  
+  ✓ it can create presences from relation manager                        3.56s  
+  ✓ it can manage presence record actions from relation manager          3.54s  
+  ✓ it can create assessments from relation manager                      3.47s  
+  ✓ it can manage assessment record actions from relation manager        3.23s  
+
+  Tests:    11 passed (48 assertions)
+  Duration: 37.89s
+

@@ -1,0 +1,3 @@
+C:\Users\Ahmad Fajar\Desktop\SKRIPSI\Kodingan\final\siakad-smp\tests\Feature\StudentPromotionTest.php
+ [x] it creates full attendance and assessment data for a grade 7 student and then promotes them to a new academic year
+

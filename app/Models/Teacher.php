@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Enums\Roles;
+use BackedEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Teacher extends User
 {
-    /** @use HasFactory<\Database\Factories\TeacherFactory> */
     use HasFactory;
 
     protected $table = 'users';
@@ -16,12 +16,16 @@ class Teacher extends User
     {
         static::addGlobalScope('teacher', function ($builder) {
             $builder->whereHas('roles', function ($query) {
-                $query->where('name', Roles::TEACHER);
+                // 👇 JURUS ANTI ERROR PHP 8.4: Ambil nilainya langsung dengan aman 👇
+                $roleValue = Roles::TEACHER instanceof BackedEnum ? Roles::TEACHER->value : Roles::TEACHER;
+
+                // Cari semua variasi nama role biar kaga ada guru yang "gaib"
+                $query->whereIn('name', [$roleValue, 'teacher', 'guru', 'Teacher', 'Guru']);
             });
         });
 
         static::created(function ($teacher) {
-            $teacher->assignRole(Roles::TEACHER);
+            $teacher->assignRole(Roles::TEACHER->value);
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AcademicYears\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -21,6 +22,14 @@ class AcademicYearForm
                         TextInput::make('name')
                             ->label('Tahun Ajaran')
                             ->required(),
+                        Select::make('semester')
+                            ->label('Semester')
+                            ->options([
+                                'ganjil' => 'Ganjil',
+                                'genap' => 'Genap',
+                            ])
+                            ->required()
+                            ->native(false),
                         DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
                             ->required(),

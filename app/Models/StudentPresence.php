@@ -16,18 +16,18 @@ class StudentPresence extends Model
         'presence_id',
         'student_id',
         'status',
+        'note', // Tambahin note sekalian biar aman pas di-fill
     ];
 
     protected $casts = [
         'status' => PresenceStatus::class,
     ];
 
-    // Accessor untuk checkbox columns
+    // 👇 REVISI ACCESSOR: Biar kaga tabrakan sama Enum asli pas nge-set data 👇
     protected function hadir(): Attribute
     {
         return Attribute::make(
             get: fn () => $this->status === PresenceStatus::PRESENT,
-            set: fn ($value) => ['status' => $value ? PresenceStatus::PRESENT : null]
         );
     }
 
@@ -35,7 +35,6 @@ class StudentPresence extends Model
     {
         return Attribute::make(
             get: fn () => $this->status === PresenceStatus::SICK,
-            set: fn ($value) => ['status' => $value ? PresenceStatus::SICK : null]
         );
     }
 
@@ -43,7 +42,6 @@ class StudentPresence extends Model
     {
         return Attribute::make(
             get: fn () => $this->status === PresenceStatus::PERMISSION,
-            set: fn ($value) => ['status' => $value ? PresenceStatus::PERMISSION : null]
         );
     }
 
@@ -51,7 +49,6 @@ class StudentPresence extends Model
     {
         return Attribute::make(
             get: fn () => $this->status === PresenceStatus::LATE,
-            set: fn ($value) => ['status' => $value ? PresenceStatus::LATE : null]
         );
     }
 
@@ -59,7 +56,6 @@ class StudentPresence extends Model
     {
         return Attribute::make(
             get: fn () => $this->status === PresenceStatus::ABSENT,
-            set: fn ($value) => ['status' => $value ? PresenceStatus::ABSENT : null]
         );
     }
 
@@ -70,6 +66,6 @@ class StudentPresence extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsTo(User::class, 'student_id'); // Pake User/Student biar relasinya bener
     }
 }

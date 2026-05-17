@@ -26,8 +26,11 @@ it('shows subject records in the table', function () {
 });
 
 it('can create a subject', function () {
+    $teacher = \App\Models\User::factory()->isTeacher()->create();
+
     $payload = [
         'name' => 'Bahasa Indonesia',
+        'teacher_id' => $teacher->id,
     ];
 
     Livewire::test(CreateSubject::class)
@@ -35,14 +38,20 @@ it('can create a subject', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $this->assertDatabaseHas('subjects', $payload);
+    $this->assertDatabaseHas('subjects', [
+        'name' => 'Bahasa Indonesia',
+        'teacher_id' => $teacher->id,
+    ]);
 });
 
 it('can update a subject', function () {
     $subject = Subject::factory()->create(['name' => 'IPA']);
 
     Livewire::test(EditSubject::class, ['record' => $subject->getKey()])
-        ->fillForm(['name' => 'Ilmu Pengetahuan Alam'])
+        ->fillForm([
+            'name' => 'Ilmu Pengetahuan Alam',
+            'teacher_id' => $subject->teacher_id,
+        ])
         ->call('save')
         ->assertHasNoFormErrors();
 

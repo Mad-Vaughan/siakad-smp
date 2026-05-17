@@ -12,7 +12,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class StudentPresencesRelationManager extends RelationManager
 {
@@ -40,9 +39,9 @@ class StudentPresencesRelationManager extends RelationManager
                 ViewColumn::make('status')
                     ->label('Status Kehadiran')
                     ->view('tables.columns.presence-status-checkboxes')
-                    ->state(fn ($record) => $record->status?->value)
+                    ->state(fn ($record) => $record->status instanceof PresenceStatus ? $record->status->value : $record->status)
                     ->viewData([
-                        'canUpdatePresence' => Auth::user()->can('Update:Presence'),
+                        'canUpdatePresence' => true,
                         'statuses' => [
                             PresenceStatus::PRESENT->value => 'Hadir',
                             PresenceStatus::SICK->value => 'Sakit',
@@ -82,6 +81,15 @@ class StudentPresencesRelationManager extends RelationManager
                             ->title('Berhasil menyimpan presensi siswa.')
                             ->success()
                             ->send();
+
+                        // 👇 INI DIA GPS PINTARNYA JON! 👇
+                        $presenceType = $this->getOwnerRecord()->type;
+
+                        if ($presenceType === 'mapel') {
+                            return redirect(\App\Filament\Resources\SubjectPresences\SubjectPresenceResource::getUrl('index'));
+                        } else {
+                            return redirect(\App\Filament\Resources\Presences\PresenceResource::getUrl('index'));
+                        }
                     })
                     ->color('success'),
             ]);
@@ -97,7 +105,9 @@ class StudentPresencesRelationManager extends RelationManager
 
         $record = $this->getRelationship()->find($recordId);
 
-        if (! $record || $record->status?->value === $statusValue) {
+        $currentStatus = $record->status instanceof PresenceStatus ? $record->status->value : $record->status;
+
+        if (! $record || $currentStatus === $statusValue) {
             return;
         }
 

@@ -10,6 +10,6 @@ if (! function_exists('isAuthAdmin')) {
      */
     function isAuthAdmin(): ?bool
     {
-        return Auth::user()?->hasRole(Roles::ADMIN);
+        return Auth::user()?->hasRole(Roles::ADMIN->value);
     }
 }

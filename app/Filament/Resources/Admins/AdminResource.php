@@ -21,6 +21,8 @@ class AdminResource extends Resource
 {
     use UserManagementGrouping;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = Admin::class;
 
     protected static string|BackedEnum|null $navigationIcon = Phosphor::ShieldCheckered;

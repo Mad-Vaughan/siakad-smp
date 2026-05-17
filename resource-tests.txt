@@ -1,0 +1,34 @@
+
+   FAIL  Tests\Feature\Filament\Resources\AcademicYearResourceTest
+  ✓ it can render academic year list page                                4.54s  
+  ✓ it can list academic years in the table                              3.18s  
+  ⨯ it can create an academic year and deactivate old active year        3.30s  
+  ✓ it can update an academic year and ensure exclusivity of active sta… 3.29s  
+  ✓ it can delete academic years via bulk action                         3.32s  
+  ✓ it can view academic year details                                    3.44s  
+
+   PASS  Tests\Feature\Filament\Resources\AdminResourceTest
+  ✓ it can render admin list page                                        3.30s  
+  ✓ it shows admin records in the table                                  3.31s  
+  ✓ it can create an admin                                               3.48s  
+  ✓ it can update an admin                                               3.28s  
+  ✓ it can view admin details                                            3.40s  
+  ✓ it can delete admins via bulk action                                 3.29s  
+
+Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 880640 bytes) in C:\Users\Ahmad Fajar\Desktop\SKRIPSI\Kodingan\final\siakad-smp\app\Filament\Resources\Assesments\Pages\ViewAssesment.php on line 41
+
+  [41;1m Pest\Exceptions\FatalException [49;22m
+
+[39;1m  Allowed memory size of 134217728 bytes exhausted (tried to allocate 880640 bytes)[39;22m
+
+  at [32mapp\Filament\Resources\Assesments\Pages\ViewAssesment.php[39m:[32m41[39m
+     37▕                     $timestamp = Carbon::now()->format('YmdHis');
+     38▕                     $fileName = "penilaian-{$subject}-{$classroom}-{$timestamp}.pdf";
+     39▕ 
+     40▕                     return response()->streamDownload(function () use ($pdf): void {
+  ➜  41▕                         echo $pdf->output();
+     42▕                     }, $fileName);
+     43▕                 }),
+     44▕             EditAction::make(),
+     45▕         ];
+

@@ -16,10 +16,18 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
+
+            // 👇 KOLOM TAMBAHAN DARI EXCEL JON 👇
             $table->string('nisn')->unique()->nullable();
+            $table->string('nipd')->nullable();
+            $table->string('nik')->nullable();
+            $table->string('birth_place')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('gender')->nullable();
+            $table->string('religion')->nullable();
+            $table->string('phone')->nullable();
             $table->text('address')->nullable();
+
             $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamps();

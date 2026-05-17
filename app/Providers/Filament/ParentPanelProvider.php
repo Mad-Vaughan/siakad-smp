@@ -8,7 +8,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -28,19 +27,18 @@ class ParentPanelProvider extends PanelProvider
             ->path('parent')
             ->login(ParentLogin::class)
             ->colors([
-                'primary' => '#2563EB', 
-                // Lo juga bisa nambahin warna lain biar makin rapi
-                'danger' => \Filament\Support\Colors\Color::Red,
-                'gray' => \Filament\Support\Colors\Color::Slate,
-                'info' => \Filament\Support\Colors\Color::Blue,
-                'success' => \Filament\Support\Colors\Color::Emerald,
-                'warning' => \Filament\Support\Colors\Color::Orange,
-                // 'primary' => Color::Amber,
+                'primary' => '#2563EB',
+                'danger' => Color::Red,
+                'gray' => Color::Slate,
+                'info' => Color::Blue,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
             ])
+
             ->discoverResources(in: app_path('Filament/Parent/Resources'), for: 'App\Filament\Parent\Resources')
             ->discoverPages(in: app_path('Filament/Parent/Pages'), for: 'App\Filament\Parent\Pages')
             ->pages([
-                Dashboard::class,
+                \App\Filament\Parent\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Parent/Widgets'), for: 'App\Filament\Parent\Widgets')
             ->widgets([

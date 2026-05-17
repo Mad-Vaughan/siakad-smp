@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tu;
 
+use App\Enums\Filament\NavigationGrouping;
 use App\Filament\Concerns\NavigationGrouping\UserManagementGrouping;
 use App\Filament\Resources\Tu\Pages\CreateTu;
 use App\Filament\Resources\Tu\Pages\EditTu;
@@ -12,12 +13,11 @@ use App\Filament\Resources\Tu\Schemas\TuInfolist;
 use App\Filament\Resources\Tu\Tables\TuTable;
 use App\Models\Tu;
 use BackedEnum;
-use UnitEnum;
-use App\Enums\Filament\NavigationGrouping;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use ToneGabes\Filament\Icons\Enums\Phosphor;
+use UnitEnum;
 
 class TuResource extends Resource
 {
@@ -33,6 +33,7 @@ class TuResource extends Resource
 
     // Ensure this resource is shown under the User Management group in navigation
     protected static UnitEnum|string|null $navigationGroup = NavigationGrouping::UserManagement;
+
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
@@ -40,11 +41,7 @@ class TuResource extends Resource
         return TuForm::configure($schema);
     }
 
-    // Force registration in navigation regardless of Shield permission checks
-    public static function shouldRegisterNavigation(): bool
-    {
-        return true;
-    }
+    // Navigation registration delegated to Filament Shield
 
     public static function infolist(Schema $schema): Schema
     {

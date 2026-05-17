@@ -1,18 +1,33 @@
 <?php
 
-use App\Livewire\Pages\About;
-use App\Livewire\Pages\Achievements;
-use App\Livewire\Pages\Activities;
-use App\Livewire\Pages\Admission;
-use App\Livewire\Pages\Contact;
+use App\Http\Controllers\CetakController;
 use App\Livewire\Pages\Home;
-use App\Livewire\Pages\News;
-use App\Livewire\Pages\Programs;
-use App\Livewire\Pages\TuRegister;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CetakController; // 👇 INI WAJIB ADA JON 👇
 
 Route::get('/', Home::class)->name('home');
 
-// 👇 INI ROUTE CETAK YANG BENER SESUAI CONTROLLER LO 👇
+if (app()->isLocal()) {
+    Route::get('/bikin-admin', function () {
+        try {
+            User::updateOrCreate(
+                ['email' => 'admin@admin.com'],
+                [
+                    'name' => 'Administrator',
+                    'password' => Hash::make('password123'),
+                ]
+            );
+
+            return response('Akun admin lokal berhasil dibuat. Hapus rute ini sebelum produksi.', 201);
+        } catch (\Throwable $e) {
+            return response('Gagal membuat akun admin: '.$e->getMessage(), 500);
+        }
+    });
+}
+
+// Cetak rekap final untuk kelas dan tahun yang dipilih
 Route::get('/cetak-rekap-final/{classroom}/{year}', [CetakController::class, 'rekapFinal'])->name('cetak.rekap.final');
+
+// Jalur buat nyetak rekap absen 1 mata pelajaran
+Route::get('/cetak/rekap-mapel', [CetakController::class, 'cetakRekapMapel'])->name('cetak.rekap.mapel');

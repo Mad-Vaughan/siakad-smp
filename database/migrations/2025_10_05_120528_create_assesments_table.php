@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('assesments', function (Blueprint $table) {
@@ -16,16 +13,19 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Classroom::class);
             $table->foreignIdFor(\App\Models\Subject::class);
             $table->foreignIdFor(\App\Models\AcademicYear::class);
+
+            // 👇 INI DIA PENYELAMAT SKRIPSI LU JON! 👇
+            $table->string('name')->nullable(); // Buat nyimpen "Tugas 1", "UTS", dll
+            $table->date('date')->nullable(); // Buat nyimpen tanggal ujiannya
+            // 👆👆👆
+
             $table->string('type', 10);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::dropIfExists('assesments'); // Note: lu kemaren nulisnya 'assessments' pake double 's', gue samain biar aman.
     }
 };

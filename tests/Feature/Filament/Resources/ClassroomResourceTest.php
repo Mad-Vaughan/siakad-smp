@@ -162,12 +162,15 @@ it('can manage presence record actions from relation manager', function () {
 it('can create assessments from relation manager', function () {
     $classroom = createClassroomWithStudents(2);
     $subject = Subject::factory()->create();
+    $classroom->subjects()->attach($subject->getKey());
 
     Livewire::test(AssesmentsRelationManager::class, [
         'ownerRecord' => $classroom,
         'pageClass' => ViewClassroom::class,
     ])
         ->callTableAction('create', data: [
+            'name' => 'Tugas Harian 1',
+            'date' => now()->toDateString(),
             'subject_id' => $subject->getKey(),
             'type' => AssesmentType::MIDTERM->value ?? AssesmentType::cases()[0]->value,
         ])
@@ -179,6 +182,7 @@ it('can create assessments from relation manager', function () {
 it('can manage assessment record actions from relation manager', function () {
     $classroom = createClassroomWithStudents(2);
     $subject = Subject::factory()->create();
+    $classroom->subjects()->attach($subject->getKey());
     $assesment = Assesment::factory()
         ->for($classroom, 'classroom')
         ->for($subject, 'subject')
@@ -197,6 +201,8 @@ it('can manage assessment record actions from relation manager', function () {
         'pageClass' => ViewClassroom::class,
     ])
         ->callTableAction('edit', $assesment->getKey(), data: [
+            'name' => 'Ulangan Akhir',
+            'date' => now()->addDay()->toDateString(),
             'subject_id' => $subject->getKey(),
             'type' => AssesmentType::FINAL->value ?? AssesmentType::cases()[0]->value,
         ])

@@ -12,36 +12,36 @@ class AdminInfolist
         return $schema
             ->components([
                 TextEntry::make('name')
-                    ->label('Nama Lengkap'), // 👈 Udah diganti ke Indo
+                    ->label('Nama Lengkap'),
 
                 TextEntry::make('email')
-                    ->label('Alamat Email'), // 👈 Udah diganti ke Indo
+                    ->label('Alamat Email'),
 
                 TextEntry::make('email_verified_at')
-                    ->label('Email Diverifikasi Pada') // 👈 Udah diganti ke Indo
+                    ->label('Email Diverifikasi Pada')
                     ->dateTime()
                     ->placeholder('-'),
 
                 TextEntry::make('nisn')
-                    ->label('NISN') // 👈 Udah diganti ke Indo (Biar kapitalnya rapi)
+                    ->label('NISN')
                     ->placeholder('-'),
 
                 TextEntry::make('date_of_birth')
-                    ->label('Tanggal Lahir') // 👈 Udah diganti ke Indo
+                    ->label('Tanggal Lahir')
                     ->date()
                     ->placeholder('-'),
 
                 TextEntry::make('gender')
-                    ->label('Jenis Kelamin') // 👈 Udah diganti ke Indo
+                    ->label('Jenis Kelamin')
                     ->badge()
                     ->placeholder('-'),
 
                 TextEntry::make('address')
-                    ->label('Alamat Lengkap') // 👈 Udah diganti ke Indo
+                    ->label('Alamat Lengkap')
                     ->placeholder('-'),
 
                 TextEntry::make('created_at')
-                    ->label('Dibuat Pada') // 👈 Udah diganti ke Indo
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->placeholder('-'),
 

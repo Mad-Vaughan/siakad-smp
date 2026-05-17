@@ -16,44 +16,37 @@ class ListRekapitulasis extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('cetak_rekap_kelas')
+            Action::make('cetak_rekap')
                 ->label('Cetak Rekap Kelas')
                 ->icon('heroicon-o-printer')
-                ->color('info')
+                ->modalWidth('md')
                 ->form([
+                    Select::make('academic_year_id')
+                        ->label('Tahun Ajaran & Semester')
+                        ->options(fn () => AcademicYear::all()->mapWithKeys(fn ($item) => [$item->id => "{$item->name} - ".ucfirst($item->semester)]))
+                        ->required()
+                        ->native(false)
+                        ->live() // 👈 Bikin reaktif biar ngasih tau dropdown di bawahnya
+                        ->afterStateUpdated(fn ($set) => $set('classroom_id', null)), // Reset kelas kalo tahun ajaran diganti
+
                     Select::make('classroom_id')
                         ->label('Pilih Kelas')
-                        ->options(Classroom::all()->pluck('name', 'id'))
-                        ->required()
-                        ->native(false), // Biar tampilannya cakep gak kaku
-                    
-                    Select::make('academic_year_id')
-                        ->label('Tahun Ajaran')
-                        ->options(function () {
-                            // 👇 JURUS ANTI ERROR: Cek dulu datanya ada apa kaga 👇
-                            // Kita ambil semua kolom tahun, kalau kolomnya bukan 'year', dia bakal cari 'tahun_ajaran'
-                            return AcademicYear::all()->mapWithKeys(function ($item) {
-                                $label = $item->year ?? $item->tahun_ajaran ?? $item->name ?? "ID: {$item->id}";
-                                return [$item->id => (string) $label];
-                            })->toArray();
-                        })
-                        ->default(function () {
-                            // Ambil yang is_active-nya true (atau angka 1)
-                            return AcademicYear::where('is_active', true)->first()?->id ?? 
-                                   AcademicYear::latest()->first()?->id;
+                        ->options(function ($get) {
+                            // 👈 Ambil ID tahun ajaran yang dipilih di atas
+                            $academicYearId = $get('academic_year_id');
+
+                            // Kalau belum milih tahun ajaran, kosongin kelasnya
+                            if (! $academicYearId) {
+                                return [];
+                            }
+
+                            // 👈 Filter kelas cuma yang sesuai sama tahun ajaran yang dipilih
+                            return Classroom::where('academic_year_id', $academicYearId)->pluck('name', 'id');
                         })
                         ->required()
                         ->native(false),
                 ])
-                ->action(function (array $data) {
-                    // Paksa redirect pake URL biar kaga nyangkut di Livewire
-                    $url = route('cetak.rekap.final', [
-                        'classroom' => $data['classroom_id'],
-                        'year' => $data['academic_year_id']
-                    ]);
-                    
-                    return redirect()->to($url);
-                }),
+                ->action(fn (array $data) => redirect()->route('cetak.rekap.final', ['classroom' => $data['classroom_id'], 'year' => $data['academic_year_id']])),
         ];
     }
 }

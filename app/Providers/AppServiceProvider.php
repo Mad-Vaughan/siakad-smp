@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Settings\LetterheadSetting;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
 
@@ -27,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Schema::defaultStringLength(191);
+
+        Gate::before(function ($user, $ability) {
+            return $user?->hasRole('admin') ? true : null;
+        });
     }
 }

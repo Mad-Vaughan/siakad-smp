@@ -19,15 +19,15 @@ class PresenceInfolist
                         TextEntry::make('classroom.name')
                             ->label('Kelas')
                             ->placeholder('-'),
-                            
-                        // 👇 Ini jalur benernya pake huruf Y gede (camelCase)
+
+                        // Use camelCase for the relationship path
                         TextEntry::make('academicYear.name')
                             ->label('Tahun Ajaran')
                             ->placeholder('-'),
-                            
+
                         TextEntry::make('date')
                             ->label('Tanggal')
-                            ->date() // 👈 Biar format tanggalnya cakep
+                            ->date()
                             ->placeholder('-'),
                     ]),
             ]);

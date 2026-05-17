@@ -3,11 +3,21 @@
     $news = []; // Tetap kosong dulu sampe lo nemu nama Modelnya
 @endphp
 
+<!-- <div 
+    class="relative w-full min-h-screen flex flex-col items-center justify-center py-12 px-4 overflow-hidden bg-cover bg-center bg-no-repeat"
+    style="
+        background-image:
+        url('https://img.sanishtech.com/u/8431a74209d5fb06f9f8bbba2d81d1e5.webp');
+		background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    "
+> -->
 <div class="relative w-full flex-1 flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
-    
+
+	
     <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
-
     <div class="relative z-10 w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-16 text-center border border-slate-100 mb-16">
         
         <div class="inline-flex items-center justify-center p-4 bg-slate-50 rounded-2xl mb-8 shadow-inner border border-slate-100">
@@ -17,12 +27,12 @@
         </div>
 
         <h2 class="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-            Sistem Informasi <br/>
-            <span class="text-gradient">Akademik Terpadu</span>
+            SISTEM PENGELOLAAN NILAI DAN ABSENSI <br/>
+            <span class="text-gradient"> SMP MUARA INDONESIA </span>
         </h2>
 
         <p class="text-lg text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-            {{ $settings->hero_description ?? 'Selamat datang di portal layanan administrasi akademik. Akses menu admin dan guru untuk mengelola data sekolah secara efisien dan transparan.' }}
+            {{ $settings->hero_description ?? 'Selamat datang di Sistem Pengelolaan Nilai dan Presensi. Akses menu admin dan guru untuk mengelola data siswa secara efisien dan transparan.' }}
         </p>
 
         <a href="{{ url('/admin') }}" class="inline-flex items-center justify-center gap-3 px-10 py-4 text-lg font-bold text-white transition-all rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-105 btn-gradient">
@@ -39,6 +49,7 @@
             <div class="h-1.5 w-16 mx-auto mt-4 rounded-full btn-gradient"></div>
         </div>
 
+		
         <div class="grid md:grid-cols-3 gap-6">
             @forelse($news as $item)
                 @empty
@@ -48,7 +59,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l5 5v11a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <p class="text-slate-500 font-medium">Belum ada berita acara yang diterbitkan hari ini.</p>
+                    <p class="text-slate-500 font-medium">.<br><br><br><div style="display:flex;justify-content:center;align-items:center;width:100%;">
+  <!-- <img src="https://img.sanishtech.com/u/6132982f32bd48013fe7fd73da0c02a2.png" style="margin:0 auto;display:block;" /> -->
+</div></p>
                 </div>
             @endforelse
         </div>

@@ -37,7 +37,9 @@ class AdminForm
                             ->password()
                             ->label('Kata Sandi')
                             ->placeholder('Masukkan kata sandi...')
-                            ->required(),
+                            ->default('password') // Otomatis ngetik "password" pas bikin baru
+                            ->dehydrated(fn (?string $state) => filled($state)) // Cuma dikirim kalau ada isinya
+                            ->required(fn (string $context): bool => $context === 'create'),
                         Textarea::make('address')
                             ->label('Alamat')
                             ->placeholder('Masukkan alamat...')
