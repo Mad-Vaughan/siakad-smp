@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <title>Rekap Presensi Mata Pelajaran</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; }
-        .info-table { width: 100%; margin-bottom: 20px; font-weight: bold; }
-        .data-table { width: 100%; border-collapse: collapse; text-align: center; }
-        .data-table th, .data-table td { border: 1px solid black; padding: 5px; }
+        /* 👇 KITA KECILIN BASE FONT BIAR LEGA JON 👇 */
+        body { font-family: sans-serif; font-size: 11px; margin: 0; padding: 0; }
+        .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid black; padding-bottom: 5px; }
+        .info-table { width: 100%; margin-bottom: 15px; font-weight: bold; font-size: 11px; }
+        
+        /* 👇 JURUS KUNCI: table-layout fixed + word-wrap biar kolom dibagi rata anti-penyok! 👇 */
+        .data-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; word-wrap: break-word; }
+        .data-table th, .data-table td { border: 1px solid black; padding: 4px 1px; font-size: 8px; }
         .data-table th { background-color: #f2f2f2; }
     </style>
 </head>
@@ -34,16 +37,22 @@
         </tr>
     </table>
 
+    @php
+        // 👇 HITUNG LEBAR KOLOM PERTEMUAN OTOMATIS (Sisa 72% dibagi jumlah pertemuan) 👇
+        $totalPertemuan = count($pertemuan);
+        $pertemuanWidth = $totalPertemuan > 0 ? (72 / $totalPertemuan) : 72;
+    @endphp
+
     <table class="data-table">
         <thead>
             <tr>
-                <th rowspan="2" width="5%">No</th>
-                <th rowspan="2" width="25%">Nama Siswa</th>
-                <th colspan="{{ count($pertemuan) == 0 ? 1 : count($pertemuan) }}">Pertemuan Ke-</th>
+                <th rowspan="2" width="6%">No</th>
+                <th rowspan="2" width="22%">Nama Siswa</th>
+                <th colspan="{{ $totalPertemuan == 0 ? 1 : $totalPertemuan }}">Pertemuan Ke-</th>
             </tr>
             <tr>
                 @forelse($pertemuan as $index => $p)
-                    <th>P-{{ $index + 1 }}<br><small>({{ \Carbon\Carbon::parse($p->date)->format('d/m') }})</small></th>
+                    <th width="{{ $pertemuanWidth }}%">P-{{ $index + 1 }}<br><small style="font-size: 7px; font-weight: normal;">({{ \Carbon\Carbon::parse($p->date)->format('d/m') }})</small></th>
                 @empty
                     <th>Belum ada data</th>
                 @endforelse
@@ -53,14 +62,11 @@
             @foreach($students as $index => $student)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td style="text-align: left;">{{ $student->name }}</td>
+                <td style="text-align: left; padding-left: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $student->name }}</td>
                 
                 @forelse($pertemuan as $p)
                     @php
-                        // Cari absen anak ini di pertemuan ini
                         $absen = $p->studentPresences->where('student_id', $student->id)->first();
-                        
-                        // Translate dari Inggris ke Indonesia (H, S, I, A)
                         $statusRaw = strtolower($absen->status->value ?? $absen->status ?? '');
                         $status = match($statusRaw) {
                             'present', 'hadir' => 'H',

@@ -17,6 +17,8 @@ class StudentHistoryResource extends Resource
 {
     protected static ?string $model = Student::class;
 
+    protected static ?string $modelLabel = 'Siswa';
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $navigationLabel = 'Histori Belajar';

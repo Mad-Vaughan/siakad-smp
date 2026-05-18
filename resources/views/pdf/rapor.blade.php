@@ -1,116 +1,217 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Rapor Siswa - {{ $student->name }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Rekapitulasi Akademik</title>
     <style>
-        body { font-family: sans-serif; font-size: 12pt; line-height: 1.5; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 3px double #000; padding-bottom: 10px; }
-        .title { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 20px; text-decoration: underline; }
-        .info-table { width: 100%; margin-bottom: 20px; }
-        .info-table td { padding: 2px; vertical-align: top; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .data-table th, .data-table td { border: 1px solid black; padding: 8px; text-align: left; }
-        .data-table th { background-color: #f2f2f2; text-align: center; }
-        .footer { margin-top: 50px; width: 100%; }
-        .footer td { text-align: center; width: 50%; }
-        .page-break { page-break-after: always; }
+        /* Setup Dasar */
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Kop Surat */
+        .kop-surat {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .kop-surat h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: #0f172a; 
+        }
+        .kop-surat p {
+            margin: 4px 0 0 0;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .garis-kop {
+            border: 0;
+            border-top: 2px solid #000; 
+            margin-bottom: 25px;
+        }
+
+        /* Judul Laporan */
+        .judul-laporan {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .judul-laporan h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+            letter-spacing: 1px;
+        }
+        .judul-laporan p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+        }
+
+        /* Informasi Kelas (Meta Info) */
+        .meta-info {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .meta-info td {
+            padding: 4px 0;
+            vertical-align: top;
+            font-size: 12px;
+            font-weight: bold;
+
+        }
+        .meta-info .label {
+            width: 180px;
+        }
+
+        /* Tabel Data */
+        .table-data {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table-data th, .table-data td {
+            border: 1px solid #cbd5e1; 
+            padding: 10px 8px;
+        }
+        .table-data th {
+            background-color: #e2e8f0; 
+            font-weight: bold;
+            text-align: center;
+            font-size: 11px;
+            color: #0f172a;
+        }
+        .table-data td {
+            font-size: 11px;
+        }
+
+        /* Helper Utilities */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        
+        /* Tombol Print (Sembunyi pas diprint) */
+        .no-print-area {
+            margin-bottom: 20px;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-print {
+            background-color: #22c55e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Konfigurasi Khusus Print */
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .table-data th {
+                background-color: #e2e8f0 !important; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2 style="margin:0;">PEMERINTAH KABUPATEN / KOTA</h2>
-        <h3 style="margin:0;">SMP NEGERI TERPADU SIAKAD</h3>
-        <p style="margin:5px 0 0 0;">Jl. Pendidikan No. 123, Indonesia. Telp: (021) 123456</p>
+
+    <div class="no-print no-print-area">
+        <span style="font-size: 12px; color: #64748b;">*Gunakan tombol di sebelah kanan atau tekan CTRL+P</span>
+        <button onclick="window.print()" class="btn-print">🖨️ KLIK UNTUK CETAK SEKARANG</button>
     </div>
 
-    <div class="title">LAPORAN HASIL BELAJAR (RAPOR)</div>
+    <div class="kop-surat">
+        <h2>SMP MUARA INDONESIA</h2>
+        <p>UNGGUL DALAM PRESTASI DAN AKHLAK</p>
+    </div>
+    <hr class="garis-kop">
 
-    <table class="info-table">
+    <div class="judul-laporan">
+        <h3>SMP MUARA INDONESIA</h3>
+        <p>Rekapitulasi Akademik Siswa</p>
+    </div>
+
+    <table class="meta-info">
         <tr>
-            <td width="20%">Nama Siswa</td><td width="2%">:</td><td width="38%"><strong>{{ $student->name }}</strong></td>
-            <td width="15%">Kelas</td><td width="2%">:</td><td width="23%">{{ $classroom->name }}</td>
+            <td width="15%">Kelas</td>
+            <td width="2%">:</td>
+            <td width="33%">{{ $classroom->name ?? '-' }}</td>
+            
+            <td width="15%">Tahun Ajaran</td>
+            <td width="2%">:</td>
+            <td width="33%">{{ $academicYear->name ?? '-' }}</td>
         </tr>
         <tr>
-            <td>NISN</td><td>:</td><td>{{ $student->nisn }}</td>
-            <td>Semester</td><td>:</td><td>{{ ucfirst($classroom->academicYear->semester ?? 'Ganjil') }}</td>
+            <td>Wali Kelas</td>
+            <td>:</td>
+            <td>{{ $classroom->teacher->name ?? 'Belum Diatur' }}</td>
+            
+            <td>Semester</td>
+            <td>:</td>
+            <td>{{ ucfirst($semester ?? '-') }}</td>
         </tr>
         <tr>
-            <td>Tahun Ajaran</td><td>:</td><td>{{ $classroom->academicYear->name ?? '-' }}</td>
-            <td>Fase</td><td>:</td><td>D</td>
+            <td>Jumlah Peserta</td>
+            <td>:</td>
+            <td>{{ isset($students) ? count($students) : 0 }} orang</td>
+            
+            <td>Waktu Cetak</td>
+            <td>:</td>
+            <td>{{ now()->format('d F Y H:i') }} WIB</td>
         </tr>
     </table>
 
-    <h4>A. Nilai Akademik</h4>
-    <table class="data-table">
+    <table class="table-data">
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th>Mata Pelajaran</th>
-                <th width="15%">Tipe Ujian</th>
-                <th width="15%">Nilai Akhir</th>
-                <th width="35%">Capaian Kompetensi</th>
+                <th rowspan="2" width="5%">NO</th>
+                <th rowspan="2" class="text-left">NAMA PESERTA DIDIK</th>
+                <th colspan="4">STATUS KEHADIRAN</th>
+                <th rowspan="2" width="15%">RATA-RATA NILAI</th>
+            </tr>
+            <tr>
+                <th width="7%">H</th>
+                <th width="7%">S</th>
+                <th width="7%">I</th>
+                <th width="7%">A</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($assessments as $index => $item)
-                @php
-                    // Ambil nama mapel dengan aman dari relasi model lu Jon
-                    $mapelName = $item->assessment->subject->name ?? ($item->subject->name ?? 'Mata Pelajaran');
-                    
-                    // Tarik tipe ujian (UTS/UAS/Tugas) dan translate ke Indonesia
-                    $tipeEnum = $item->assessment->type ?? null;
-                    $rawType = strtolower(is_object($tipeEnum) ? ($tipeEnum->value ?? $tipeEnum->name) : ($tipeEnum ?? ''));
-                    $tipeIndo = match($rawType) {
-                        'assignment' => 'Tugas',
-                        'exam'       => 'Ujian',
-                        'quiz'       => 'Kuis',
-                        'project'    => 'Proyek',
-                        'midterm'    => 'UTS',
-                        'final'      => 'UAS',
-                        'practice'   => 'Praktek',
-                        default      => ucfirst($rawType ?: 'Nilai'),
-                    };
-
-                    // Ambil kolom nilai yang bener (score)
-                    $nilaiAkhir = $item->score ?? ($item->final_score ?? 0);
-                    $color = $nilaiAkhir < 75 ? 'color: #dc2626; font-weight: bold;' : 'color: #16a34a; font-weight: bold;';
-                @endphp
-                <tr>
-                    <td style="text-align:center;">{{ $index + 1 }}</td>
-                    <td>{{ $mapelName }}</td>
-                    <td style="text-align:center; color: #6b7280;">{{ $tipeIndo }}</td>
-                    <td style="text-align:center; {{$color}}">{{ $nilaiAkhir }}</td>
-                    <td style="font-size: 10pt;">
-                        @if($nilaiAkhir >= 75)
-                            Menunjukkan penguasaan yang sangat baik dalam mencapai kompetensi {{ $mapelName }}.
-                        @else
-                            Perlu bimbingan dan peningkatan dalam menguasai kompetensi {{ $mapelName }}.
-                        @endif
-                    </td>
-                </tr>
+            @forelse ($students ?? [] as $siswa)
+            <tr>
+                <td class="text-center">{{ $loop->iteration }}</td>
+                <td>{{ $siswa->name }}</td>
+                
+                <td class="text-center">{{ $siswa->total_h ?? 0 }}</td>
+                <td class="text-center">{{ $siswa->total_s ?? 0 }}</td>
+                <td class="text-center">{{ $siswa->total_i ?? 0 }}</td>
+                <td class="text-center">{{ $siswa->total_a ?? 0 }}</td>
+                <td class="text-center">{{ number_format($siswa->rata_nilai ?? 0, 2) }}</td>
+            </tr>
             @empty
-                <tr>
-                    <td colspan="5" style="text-align:center; color:#6b7280; font-style:italic; padding: 20px;">
-                        Data nilai belum tersedia untuk semester ini.
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="7" class="text-center">Data siswa kosong atau belum ada.</td>
+            </tr>
             @endforelse
         </tbody>
     </table>
 
-    <div class="footer">
-        <table width="100%">
-            <tr>
-                <td>
-                    <br>Mengetahui,<br>Orang Tua/Wali<br><br><br><br><br>
-                    ( ................................ )
-                </td>
-                <td>
-                    Jakarta, {{ date('d F Y') }}<br>Wali Kelas<br><br><br><br><br>
-                    <strong>( {{ $classroom->teacher->name ?? ($classroom->teacher->user->name ?? 'Nama Guru') }} )</strong>
-                </td>
-            </tr>
-        </table>
-    </div>
 </body>
 </html>

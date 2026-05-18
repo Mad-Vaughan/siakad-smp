@@ -24,7 +24,8 @@ class SubjectPresencesTable
                     ->badge()
                     ->color('warning')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap(),
 
                 TextColumn::make('classroom.name')
                     ->label('Kelas')
@@ -35,7 +36,8 @@ class SubjectPresencesTable
                 // 👇 DIBIKIN RAPI: Tahun Ajaran Sendiri 👇
                 TextColumn::make('academicYear.name')
                     ->label('Tahun Ajaran')
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap(),
 
                 // 👇 DIBIKIN RAPI: Semester Pake Warna 👇
                 TextColumn::make('academicYear.semester')

@@ -9,7 +9,7 @@ use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
-// 👇 INI SURAT IZIN SAKTINYA DARI LARAVEL
+// 👇 SURAT IZIN SAKTI DARI LARAVEL FILAMENT
 
 class StudentHistoryInfolist
 {
@@ -60,7 +60,7 @@ class StudentHistoryInfolist
                                         ->collapsible(false)
                                         ->schema([
                                             TextEntry::make('classroom_info')
-                                                ->label('Wali Kelas')
+                                                ->label('Wali Kelas (Aktif)')
                                                 ->inlineLabel()
                                                 ->state(function ($record) {
                                                     $activeClass = \App\Models\StudentClassroom::where('student_id', $record->id)
@@ -72,7 +72,7 @@ class StudentHistoryInfolist
                                                 }),
 
                                             TextEntry::make('class_status')
-                                                ->label('Status')
+                                                ->label('Status Kelas')
                                                 ->inlineLabel()
                                                 ->badge()
                                                 ->state(function ($record) {
@@ -87,24 +87,15 @@ class StudentHistoryInfolist
                                                 }),
                                         ]),
 
-                                    // RINGKASAN ABSENSI
-                                    Section::make('Ringkasan Absensi')
+                                    // RINGKASAN ABSENSI (SUDAH DI-REVISI JON: AKUMULASI SEMUA SEMESTER)
+                                    Section::make('Total Absensi (Semua Semester)')
                                         ->collapsible(false)
                                         ->columns(2)
                                         ->schema([
                                             TextEntry::make('hadir')
                                                 ->label('Hadir')
                                                 ->state(function ($record) {
-                                                    $classroomId = \App\Models\StudentClassroom::where('student_id', $record->id)
-                                                        ->where('is_active', true)
-                                                        ->value('classroom_id');
-
-                                                    if (! $classroomId) {
-                                                        return '0';
-                                                    }
-
                                                     $count = \App\Models\StudentPresence::where('student_id', $record->id)
-                                                        ->whereHas('presence', fn ($q) => $q->where('classroom_id', $classroomId))
                                                         ->where('status', 'present')
                                                         ->count();
 
@@ -114,16 +105,7 @@ class StudentHistoryInfolist
                                             TextEntry::make('sakit')
                                                 ->label('Sakit')
                                                 ->state(function ($record) {
-                                                    $classroomId = \App\Models\StudentClassroom::where('student_id', $record->id)
-                                                        ->where('is_active', true)
-                                                        ->value('classroom_id');
-
-                                                    if (! $classroomId) {
-                                                        return '0';
-                                                    }
-
                                                     $count = \App\Models\StudentPresence::where('student_id', $record->id)
-                                                        ->whereHas('presence', fn ($q) => $q->where('classroom_id', $classroomId))
                                                         ->where('status', 'sick')
                                                         ->count();
 
@@ -133,16 +115,7 @@ class StudentHistoryInfolist
                                             TextEntry::make('izin')
                                                 ->label('Izin')
                                                 ->state(function ($record) {
-                                                    $classroomId = \App\Models\StudentClassroom::where('student_id', $record->id)
-                                                        ->where('is_active', true)
-                                                        ->value('classroom_id');
-
-                                                    if (! $classroomId) {
-                                                        return '0';
-                                                    }
-
                                                     $count = \App\Models\StudentPresence::where('student_id', $record->id)
-                                                        ->whereHas('presence', fn ($q) => $q->where('classroom_id', $classroomId))
                                                         ->where('status', 'permission')
                                                         ->count();
 
@@ -152,16 +125,7 @@ class StudentHistoryInfolist
                                             TextEntry::make('alpa')
                                                 ->label('Alpa')
                                                 ->state(function ($record) {
-                                                    $classroomId = \App\Models\StudentClassroom::where('student_id', $record->id)
-                                                        ->where('is_active', true)
-                                                        ->value('classroom_id');
-
-                                                    if (! $classroomId) {
-                                                        return '0';
-                                                    }
-
                                                     $count = \App\Models\StudentPresence::where('student_id', $record->id)
-                                                        ->whereHas('presence', fn ($q) => $q->where('classroom_id', $classroomId))
                                                         ->where('status', 'absent')
                                                         ->count();
 
@@ -171,44 +135,48 @@ class StudentHistoryInfolist
                                 ])
                                     ->columnSpan(1),
 
-                                // 👉 KOLOM KANAN (2 kolom) - TABEL TRANSKRIP
+                                // 👉 KOLOM KANAN (2 kolom) - TABEL TRANSKRIP REVISI SINKRON ENUM LU
                                 Group::make([
                                     Html::make('transkrip_nilai_html')
                                         ->content(function ($record) {
-                                            $classroomId = \App\Models\StudentClassroom::where('student_id', $record->id)
-                                                ->where('is_active', true)
-                                                ->value('classroom_id');
-
                                             $scores = \App\Models\StudentAssesment::where('student_id', $record->id)
-                                                ->whereHas('assessment', fn ($q) => $q->where('classroom_id', $classroomId ?? 0))
-                                                ->with('assessment.subject')
-                                                ->get();
+                                                ->with(['assessment.subject', 'assessment.classroom.academicYear'])
+                                                ->get()
+                                                ->sortByDesc(function ($score) {
+                                                    return $score->assessment->classroom->academicYear->id ?? 0;
+                                                });
 
-                                            $html = '<div style="overflow-x:auto; border:1px solid #e5e7eb; border-radius:0.75rem;"><table style="width:100%; min-width:100%; border-collapse:collapse; font-size:0.875rem;"><colgroup><col style="width:50%"><col style="width:25%"><col style="width:25%"></colgroup><thead style="background:#f9fafb;"><tr><th style="padding:0.75rem 1rem; text-align:left; color:#374151; border:1px solid #e5e7eb;">Mata Pelajaran</th><th style="padding:0.75rem 1rem; text-align:center; color:#374151; border:1px solid #e5e7eb;">Tipe</th><th style="padding:0.75rem 1rem; text-align:right; color:#374151; border:1px solid #e5e7eb;">Nilai</th></tr></thead><tbody>';
+                                            $html = '<div style="overflow-x:auto; border:1px solid #e5e7eb; border-radius:0.75rem;"><table style="width:100%; min-width:100%; border-collapse:collapse; font-size:0.875rem;"><colgroup><col style="width:30%"><col style="width:30%"><col style="width:20%"><col style="width:20%"></colgroup><thead style="background:#f9fafb;"><tr><th style="padding:0.75rem 1rem; text-align:left; color:#374151; border:1px solid #e5e7eb;">T.A & Semester</th><th style="padding:0.75rem 1rem; text-align:left; color:#374151; border:1px solid #e5e7eb;">Mata Pelajaran</th><th style="padding:0.75rem 1rem; text-align:center; color:#374151; border:1px solid #e5e7eb;">Tipe</th><th style="padding:0.75rem 1rem; text-align:right; color:#374151; border:1px solid #e5e7eb;">Nilai</th></tr></thead><tbody>';
 
                                             if ($scores->isEmpty()) {
-                                                $html .= '<tr><td colspan="3" style="padding:0.75rem 1rem; text-align:center; color:#6b7280; font-style:italic;">Data nilai belum diinput oleh guru.</td></tr>';
+                                                $html .= '<tr><td colspan="4" style="padding:0.75rem 1rem; text-align:center; color:#6b7280; font-style:italic;">Data nilai belum ada.</td></tr>';
                                             } else {
                                                 foreach ($scores as $score) {
                                                     $color = $score->score < 75 ? 'color:#dc2626;' : 'color:#16a34a;';
                                                     
-                                                    // 👇 KAMUS TRANSLATE BAHASA INDONESIA JON 👇
                                                     $tipeEnum = $score->assessment->type;
                                                     $rawType = strtolower(is_object($tipeEnum) ? ($tipeEnum->value ?? $tipeEnum->name) : $tipeEnum);
                                                     
                                                     $tipeIndo = match($rawType) {
+                                                        'quiz'       => 'Kuis',
                                                         'assignment' => 'Tugas',
                                                         'exam'       => 'Ujian',
-                                                        'quiz'       => 'Kuis',
-                                                        'project'    => 'Proyek',
                                                         'midterm'    => 'UTS',
                                                         'final'      => 'UAS',
-                                                        'practice'   => 'Praktek',
+                                                        'daily_test' => 'Ulangan Harian',
+                                                        'practical'  => 'Praktikum',
+                                                        'project'    => 'Proyek',
                                                         default      => ucfirst($rawType),
                                                     };
-                                                    // 👆 KAMUS TRANSLATE BAHASA INDONESIA JON 👆
 
-                                                    $html .= '<tr><td style="padding:0.75rem 1rem; border:1px solid #e5e7eb; vertical-align:top; word-break:break-word;">'.e($score->assessment->subject->name).'</td><td style="padding:0.75rem 1rem; text-align:center; border:1px solid #e5e7eb; color:#6b7280; vertical-align:top; word-break:break-word;">'.e($tipeIndo).'</td><td style="padding:0.75rem 1rem; text-align:right; border:1px solid #e5e7eb; font-weight:700; '.$color.' vertical-align:top;">'.e($score->score).'</td></tr>';
+                                                    $ta = $score->assessment->classroom->academicYear ?? null;
+                                                    $taText = '-';
+                                                    if ($ta) {
+                                                        $semester = ucfirst(strtolower($ta->semester ?? 'Ganjil'));
+                                                        $taText = "{$ta->name} - {$semester}";
+                                                    }
+
+                                                    $html .= '<tr><td style="padding:0.75rem 1rem; border:1px solid #e5e7eb; vertical-align:top;">'.e($taText).'</td><td style="padding:0.75rem 1rem; border:1px solid #e5e7eb; vertical-align:top; word-break:break-word;">'.e($score->assessment->subject->name).'</td><td style="padding:0.75rem 1rem; text-align:center; border:1px solid #e5e7eb; color:#6b7280; vertical-align:top; word-break:break-word;">'.e($tipeIndo).'</td><td style="padding:0.75rem 1rem; text-align:right; border:1px solid #e5e7eb; font-weight:700; '.$color.' vertical-align:top;">'.e($score->score).'</td></tr>';
                                                 }
                                             }
 

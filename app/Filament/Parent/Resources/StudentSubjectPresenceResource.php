@@ -65,7 +65,7 @@ class StudentSubjectPresenceResource extends Resource
                     ->formatStateUsing(function ($record) {
                         $year = $record->presence?->classroom?->academicYear;
                         if (! $year) return '-';
-                        $semester = ucfirst(strtolower($year->semester ?? 'Ganjil'));
+                        $semester = ucfirst(strtolower($year->semester ?? 'Belum Diketahui'));
                         return "{$year->name} - {$semester}";
                 }),
 
